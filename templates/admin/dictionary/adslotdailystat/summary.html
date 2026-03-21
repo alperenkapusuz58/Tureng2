@@ -1,0 +1,45 @@
+{% extends "admin/base_site.html" %}
+
+{% block content %}
+  <h1>{{ title }}</h1>
+  <p>Tarih araligi: <strong>{{ from_day }}</strong> - <strong>{{ to_day }}</strong></p>
+
+  <table class="adminlist" style="width: 100%; border-collapse: collapse;">
+    <thead>
+      <tr>
+        <th style="text-align:left; border-bottom: 1px solid #ddd; padding: 8px;">Slot</th>
+        <th style="text-align:left; border-bottom: 1px solid #ddd; padding: 8px;">Key</th>
+        <th style="text-align:right; border-bottom: 1px solid #ddd; padding: 8px;">Impression</th>
+        <th style="text-align:right; border-bottom: 1px solid #ddd; padding: 8px;">Click</th>
+        <th style="text-align:right; border-bottom: 1px solid #ddd; padding: 8px;">CTR</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for row in rows %}
+        <tr>
+          <td style="padding: 8px; border-bottom: 1px solid #f0f0f0;">{{ row.name }}</td>
+          <td style="padding: 8px; border-bottom: 1px solid #f0f0f0;"><code>{{ row.key }}</code></td>
+          <td style="padding: 8px; border-bottom: 1px solid #f0f0f0; text-align:right;">{{ row.impressions }}</td>
+          <td style="padding: 8px; border-bottom: 1px solid #f0f0f0; text-align:right;">{{ row.clicks }}</td>
+          <td style="padding: 8px; border-bottom: 1px solid #f0f0f0; text-align:right;">{{ row.ctr|floatformat:2 }}%</td>
+        </tr>
+      {% empty %}
+        <tr>
+          <td colspan="5" style="padding: 12px;">Bu aralikta veri yok.</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+    <tfoot>
+      <tr>
+        <th colspan="2" style="text-align:right; padding: 8px; border-top: 2px solid #ddd;">Toplam</th>
+        <th style="text-align:right; padding: 8px; border-top: 2px solid #ddd;">{{ total_impressions }}</th>
+        <th style="text-align:right; padding: 8px; border-top: 2px solid #ddd;">{{ total_clicks }}</th>
+        <th style="text-align:right; padding: 8px; border-top: 2px solid #ddd;">{{ total_ctr|floatformat:2 }}%</th>
+      </tr>
+    </tfoot>
+  </table>
+
+  <p style="margin-top: 18px;">
+    <a href="../">Gunluk rapor listesine don</a>
+  </p>
+{% endblock %}

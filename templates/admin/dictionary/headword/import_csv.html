@@ -1,0 +1,23 @@
+{% extends "admin/base_site.html" %}
+
+{% block content %}
+  <h1>{{ title }}</h1>
+
+  <p>
+    Tek CSV dosyasiyla hem <strong>en_tr</strong> hem <strong>tr_en</strong> satirlarini yukleyebilirsiniz.
+    Zorunlu kolon: <code>section</code>.
+  </p>
+
+  <h3>Beklenen kolonlar</h3>
+  <ul>
+    <li><strong>en_tr</strong>: section, en_lemma, part_of_speech, translation, example_en, example_tr, notes, order_index, is_primary, en_pronunciation, en_audio_url, example_audio_url</li>
+    <li><strong>tr_en</strong>: section, tr_lemma, en_lemma, rank</li>
+  </ul>
+
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="default">Yukle</button>
+    <a href="../" style="margin-left: 10px;">Geri</a>
+  </form>
+{% endblock %}

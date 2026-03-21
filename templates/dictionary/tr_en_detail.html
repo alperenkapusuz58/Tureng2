@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="tr">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{ headword.lemma }} - TR -> EN</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 960px; margin: 30px auto; padding: 0 16px; }
+        .top a { color: #0a58ca; text-decoration: none; }
+        .list a { display: block; padding: 10px; margin: 8px 0; border: 1px solid #ddd; border-radius: 8px; text-decoration: none; color: #111; }
+        .list a:hover { background: #f8f8f8; }
+        .helper { color: #666; }
+        .listen { margin-left: 8px; padding: 4px 8px; font-size: 12px; cursor: pointer; }
+        .ad-slot { margin-top: 24px; border: 1px dashed #999; padding: 20px; color: #777; text-align: center; }
+        .ad-cta { margin-top: 10px; display: inline-block; font-size: 13px; }
+        .mobile-only { display: none; }
+        @media (max-width: 768px) {
+            .desktop-only { display: none; }
+            .mobile-only { display: block; }
+        }
+    </style>
+</head>
+<body>
+    <div class="top"><a href="/">← Ana sayfa</a></div>
+    <h1>
+        {{ headword.lemma }}
+        <button class="listen" data-text="{{ headword.lemma }}" data-lang="tr-TR">Seslendir</button>
+    </h1>
+    <p class="helper">Ornek cumleleri gormek icin Ingilizce karsiliga tiklayin.</p>
+
+    <div class="list">
+        {% for link in links %}
+            <a href="/en-tr/{{ link.en_headword.slug }}/">{{ link.en_headword.lemma }}</a>
+        {% empty %}
+            <p>Bu kelime icin Ingilizce karsilik henuz eklenmedi.</p>
+        {% endfor %}
+    </div>
+
+    {% with ad=ads.tr_en_bottom %}
+        <div class="ad-slot desktop-only">
+            {% if ad and ad.ad_code %}
+                {{ ad.ad_code|safe }}
+            {% else %}
+                {{ ad.placeholder_text|default:"Reklam alani (Detail Bottom Banner)" }}
+            {% endif %}
+            {% if ad and ad.target_url %}
+                <div><a class="ad-cta" href="/ad/click/{{ ad.key }}/" target="_blank" rel="noopener">Reklama git</a></div>
+            {% endif %}
+        </div>
+    {% endwith %}
+    {% with ad=ads.tr_en_bottom_mobile %}
+        <div class="ad-slot mobile-only">
+            {% if ad and ad.ad_code %}
+                {{ ad.ad_code|safe }}
+            {% else %}
+                {{ ad.placeholder_text|default:"Reklam alani (Detail Bottom Banner - Mobile)" }}
+            {% endif %}
+            {% if ad and ad.target_url %}
+                <div><a class="ad-cta" href="/ad/click/{{ ad.key }}/" target="_blank" rel="noopener">Reklama git</a></div>
+            {% endif %}
+        </div>
+    {% endwith %}
+    <script>
+        function speakText(text, lang) {
+            if (!('speechSynthesis' in window)) {
+                return;
+            }
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = lang || 'tr-TR';
+            window.speechSynthesis.cancel();
+            window.speechSynthesis.speak(utterance);
+        }
+
+        document.querySelectorAll('.listen').forEach((btn) => {
+            btn.addEventListener('click', () => {
+                speakText(btn.dataset.text, btn.dataset.lang);
+            });
+        });
+    </script>
+</body>
+</html>

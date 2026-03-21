@@ -1,0 +1,9 @@
+section,en_lemma,part_of_speech,translation,example_en,example_tr,notes,order_index,is_primary,en_pronunciation,en_audio_url,example_audio_url,tr_lemma,rank
+en_tr,a,noun,"bir, herhangi bir","There is a concert on Saturday night.","Cumartesi gecesi bir konser var.",,1,true,,,
+en_tr,a,noun,Ingiliz alfabesinin ilk harfi,"The child proudly wrote a giant A on the board.","Cocuk, tahtaya gururla kocaman bir A harfi yazdi.",,2,false,,,
+en_tr,abandon,verb,terk etmek,"Her father abandoned Linda at the bus station when she was only eight.","Babasi, Linda henuz sekiz yasindayken onu otobus terminalinde terk etti.",,1,true,,,
+en_tr,abandon,noun,kendini kaptirma,"The children ran across the meadow with abandon.","Cocuklar cayirda ipini koparmiscasina kosuyordu.",,2,false,,,
+tr_en,a,,,,,,,,,,bir,1
+tr_en,aah,,,,,,,,,,aa!,1
+tr_en,aardvark,,,,,,,,,,yer domuzu,1
+tr_en,abandon,,,,,,,,,,terk etmek,1

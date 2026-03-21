@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="tr">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{ headword.lemma }} - EN -> TR</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 960px; margin: 30px auto; padding: 0 16px; }
+        .top a { color: #0a58ca; text-decoration: none; }
+        .pronunciation { color: #666; margin-top: 4px; }
+        .listen { margin-left: 8px; padding: 4px 8px; font-size: 12px; cursor: pointer; }
+        .section { margin-top: 24px; }
+        .sense { border: 1px solid #ddd; border-radius: 8px; padding: 12px; margin-top: 10px; }
+        .translation { font-weight: 700; }
+        .example { margin-top: 8px; padding: 10px; background: #f8f8f8; border-radius: 6px; }
+        .ad-slot { margin-top: 24px; border: 1px dashed #999; padding: 20px; color: #777; text-align: center; }
+        .ad-cta { margin-top: 10px; display: inline-block; font-size: 13px; }
+        .mobile-only { display: none; }
+        @media (max-width: 768px) {
+            .desktop-only { display: none; }
+            .mobile-only { display: block; }
+        }
+    </style>
+</head>
+<body>
+    <div class="top"><a href="/">← Ana sayfa</a></div>
+    <h1>{{ headword.lemma }}</h1>
+    {% if headword.pronunciation_text %}
+        <div class="pronunciation">Okunus: {{ headword.pronunciation_text }}</div>
+    {% endif %}
+    <div class="pronunciation">
+        {% if headword.pronunciation_audio_url %}
+            <audio controls preload="none" src="{{ headword.pronunciation_audio_url }}"></audio>
+        {% endif %}
+        <button class="listen" data-text="{{ headword.lemma }}" data-lang="en-US">Seslendir</button>
+    </div>
+
+    {% for pos_name, sense_list in grouped_senses.items %}
+        <div class="section">
+            <h2>{{ pos_name }}</h2>
+            {% for sense in sense_list %}
+                <div class="sense">
+                    <div class="translation">{{ sense.translation }}</div>
+                    {% if sense.notes %}<div>{{ sense.notes }}</div>{% endif %}
+                    {% for ex in sense.examples.all %}
+                        <div class="example">
+                            <div>
+                                {{ ex.sentence_source }}
+                                <button class="listen" data-text="{{ ex.sentence_source }}" data-lang="en-US">Seslendir</button>
+                            </div>
+                            <div><em>{{ ex.sentence_target }}</em></div>
+                            {% if ex.audio_url %}
+                                <audio controls preload="none" src="{{ ex.audio_url }}"></audio>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endfor %}
+        </div>
+    {% empty %}
+        <p>Bu kelime icin henuz anlam eklenmedi.</p>
+    {% endfor %}
+
+    {% with ad=ads.en_tr_inline %}
+        <div class="ad-slot desktop-only">
+            {% if ad and ad.ad_code %}
+                {{ ad.ad_code|safe }}
+            {% else %}
+                {{ ad.placeholder_text|default:"Reklam alani (Detail Inline Banner)" }}
+            {% endif %}
+            {% if ad and ad.target_url %}
+                <div><a class="ad-cta" href="/ad/click/{{ ad.key }}/" target="_blank" rel="noopener">Reklama git</a></div>
+            {% endif %}
+        </div>
+    {% endwith %}
+    {% with ad=ads.en_tr_inline_mobile %}
+        <div class="ad-slot mobile-only">
+            {% if ad and ad.ad_code %}
+                {{ ad.ad_code|safe }}
+            {% else %}
+                {{ ad.placeholder_text|default:"Reklam alani (Detail Inline Banner - Mobile)" }}
+            {% endif %}
+            {% if ad and ad.target_url %}
+                <div><a class="ad-cta" href="/ad/click/{{ ad.key }}/" target="_blank" rel="noopener">Reklama git</a></div>
+            {% endif %}
+        </div>
+    {% endwith %}
+
+    <script>
+        function speakText(text, lang) {
+            if (!('speechSynthesis' in window)) {
+                return;
+            }
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = lang || 'en-US';
+            window.speechSynthesis.cancel();
+            window.speechSynthesis.speak(utterance);
+        }
+
+        document.querySelectorAll('.listen').forEach((btn) => {
+            btn.addEventListener('click', () => {
+                speakText(btn.dataset.text, btn.dataset.lang);
+            });
+        });
+    </script>
+</body>
+</html>

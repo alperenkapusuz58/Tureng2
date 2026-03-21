@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="tr">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Sonuc bulunamadi</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 760px; margin: 30px auto; padding: 0 16px; }
+        a { color: #0a58ca; text-decoration: none; }
+    </style>
+</head>
+<body>
+    <h1>Sonuc bulunamadi</h1>
+    <p><strong>{{ query }}</strong> icin sonuc bulunamadi veya henuz eklenmedi.</p>
+    {% if suggestions %}
+        <h3>Benzer sonuclar</h3>
+        <ul>
+            {% for item in suggestions %}
+                <li><a href="{{ item.url }}">{{ item.lemma }}</a></li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+    <p><a href="/">Ana sayfaya don</a></p>
+</body>
+</html>

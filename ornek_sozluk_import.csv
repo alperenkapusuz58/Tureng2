@@ -1,0 +1,39 @@
+section,en_lemma,part_of_speech,translation,example_en,example_tr,notes,order_index,is_primary,en_pronunciation,en_audio_url,example_audio_url,tr_lemma,rank
+en_tr,a,noun,"bir, herhangi bir","There is a concert on Saturday night.","Cumartesi gecesi bir konser var.","",1,true,"","","","",1
+en_tr,a,noun,"Ingiliz alfabesinin ilk harfi","The child proudly wrote a giant A on the board before continuing with the rest of the alphabet.","Cocuk, tahtaya gururla kocaman bir A harfi yazdi ve ardindan alfabenin geri kalanina devam etti.","",2,false,"","","","",1
+en_tr,a,noun,"en yuksek not","She studied all weekend and finally earned an A in chemistry.","Tum hafta sonu calisti ve sonunda kimyadan A aldi.","",3,false,"","","","",1
+en_tr,a,noun,"A kan grubu","After the test results came back, we learned that his blood group is A.","Test sonuclari geldikten sonra kan grubunun A oldugunu ogrendik.","",4,false,"","","","",1
+en_tr,a-,other,"-siz, -siz olmayan","Asexual organisms can reproduce without sexual cells.","Eseysiz organizmalar cinsel hucreler olmadan uretebilir.","on ek",1,true,"","","","",1
+en_tr,aah,interj,"aa!","Aah! Now I remember where I left my keys.","Aa! Anahtarlarimi nerede unuttugumu simdi hatirladim.","",1,true,"","","","",1
+en_tr,aardvark,noun,"yer domuzu, karincayiyen","An aardvark wandered across the dirt road just after sunset, its long snout close to the ground.","Gun batimindan hemen sonra, uzun burnu yere yakin bir sekilde bir karincayiyen toprak yolda dolasiyordu.","",1,true,"","","","",1
+en_tr,aargh,interj,"aaah!","Aargh! I can't believe I spilled coffee on my notes right before the meeting.","Aaah! Toplantidan hemen once notlarimin uzerine kahve doktum.","",1,true,"","","","",1
+en_tr,aback,adv,"sasirkinlikla","She was taken aback when she ran into her old friend at the airport.","Havalimaninda eski arkadasiyla karsilasinca sasirdi.","",1,true,"","","","",1
+en_tr,abacus,noun,"abakus, sayi boncugu, corku","In ancient times, merchants used an abacus for quick calculations.","Eski zamanlarda tuccarlar hizli hesaplamalar icin abakus kullanirlardi.","",1,true,"","","","",1
+en_tr,abandon,verb,"terk etmek, birakip gitmek","Her father abandoned Linda at the bus station when she was only eight.","Babasi, Linda henuz sekiz yasindayken onu otobus terminalinde terk etti.","I) fiil",1,true,"","","","",1
+en_tr,abandon,verb,"yuzustu birakmak","I am sorry I abandoned you like that.","Seni oyle yuzustu biraktigim icin ozur dilerim.","I) fiil",2,false,"","","","",1
+en_tr,abandon,verb,"yarida kesmek","The match was abandoned after heavy rain made the field unplayable.","Siddetli yagmur nedeniyle saha oynanamaz hale gelince mac yarida kaldi.","I) fiil",3,false,"","","","",1
+en_tr,abandon,verb,"(umut) kesmek, yitirmek","Faced with the unrelenting storm at sea, the crew abandoned all hope.","Denizdeki amansiz firtinayla karsi karsiya kalan murettebat tum umutlarini yitirdi.","I) fiil",4,false,"","","","",1
+en_tr,abandon,noun,"kendini kaptirma, kapilma","The children ran across the meadow with abandon, shouting and chasing one another.","Cocuklar cayirda ipini koparmiscasina kosuyor, bagiriyor ve birbirlerini kovaliyorlardi.","II) isim",5,false,"","","","",1
+en_tr,abandon ship,verb,"gemiyi terk etmek","As the hull cracked and water surged in, the captain shouted for everyone to abandon ship immediately.","Gemi govdesi catlayip iceri su dolunca, kaptan herkese derhal gemiyi terk etmelerini emretti.","",1,true,"","","","",1
+en_tr,abandon ship,verb,"zoru gorunce kacmak, gemiyi terk etmek","Investors began to abandon ship as the company's revenue continued to plunge.","Sirketin gelirleri dusmeye devam ederken yatirimcilar gemiyi terk etmeye basladi.","",2,false,"","","","",1
+en_tr,abandoned,adj,"terk edilmis","The villagers found an abandoned child near the edge of the forest.","Koyluler ormanin kenarinda terk edilmis bir cocuk buldular.","",1,true,"","","","",1
+en_tr,abandoned,adj,"metruk","Vines and moss covered the walls of the abandoned building.","Metruk binanin duvarlarini sarmasiklar ve yosunlar kaplamisti.","",2,false,"","","","",1
+tr_en,a,,,,,,,,,,bir,1
+tr_en,aah,,,,,,,,,,aa!,1
+tr_en,aardvark,,,,,,,,,,yer domuzu,1
+tr_en,aardvark,,,,,,,,,,karincayiyen,2
+tr_en,aargh,,,,,,,,,,aaah!,1
+tr_en,aback,,,,,,,,,,sasirmis,1
+tr_en,aback,,,,,,,,,,saskin,2
+tr_en,abacus,,,,,,,,,,abakus,1
+tr_en,abacus,,,,,,,,,,sayi boncugu,2
+tr_en,abacus,,,,,,,,,,corku,3
+tr_en,abandon,,,,,,,,,,terk etmek,1
+tr_en,abandon,,,,,,,,,,birakip gitmek,2
+tr_en,abandon,,,,,,,,,,yarida kesmek,3
+tr_en,abandon all hope,,,,,,,,,,umudunu kesmek,1
+tr_en,abandon all hope,,,,,,,,,,umudunu yitirmek,2
+tr_en,abandon ship,,,,,,,,,,gemiyi terk etmek,1
+tr_en,abandon ship,,,,,,,,,,zoru gorunce kacmak,2
+tr_en,abandoned,,,,,,,,,,terk edilmis,1
+tr_en,abandoned,,,,,,,,,,metruk,2
