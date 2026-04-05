@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="tr">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>404 - Sayfa bulunamadi</title>
+    <style>
+        :root {
+            --brand-dark: #083a73;
+            --brand-mid: #0f5ea8;
+            --brand-soft: #dbefff;
+            --accent: #d4e832;
+            --accent-strong: #adc017;
+            --text: #0d2748;
+        }
+        body {
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: Arial, sans-serif;
+            color: var(--text);
+            background: linear-gradient(180deg, #f5f9ff 0%, #eef5ff 100%);
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .wrap {
+            width: min(680px, 100%);
+            border: 1px solid #bcd5ef;
+            border-radius: 14px;
+            background: #fff;
+            box-shadow: 0 12px 28px rgba(8, 58, 115, 0.12);
+            overflow: hidden;
+        }
+        .head {
+            padding: 16px 18px;
+            color: #fff;
+            background: linear-gradient(135deg, var(--brand-dark), var(--brand-mid));
+            font-size: 30px;
+            font-weight: 800;
+            letter-spacing: 0.6px;
+        }
+        .content {
+            padding: 22px 18px 24px;
+        }
+        .title {
+            margin: 0;
+            font-size: 24px;
+            color: var(--brand-dark);
+        }
+        .text {
+            margin-top: 12px;
+            font-size: 16px;
+            line-height: 1.55;
+            color: #2e5079;
+        }
+        .home-link {
+            display: inline-block;
+            margin-top: 18px;
+            text-decoration: none;
+            color: #173961;
+            background: linear-gradient(180deg, var(--accent), var(--accent-strong));
+            border: 1px solid #8ea10f;
+            border-radius: 7px;
+            padding: 8px 12px;
+            font-weight: 700;
+        }
+    </style>
+</head>
+<body>
+    <div class="wrap">
+        <div class="head">404</div>
+        <div class="content">
+            <h1 class="title">Sayfa bulunamadi</h1>
+            <p class="text">Aradiginiz sayfa tasinmis olabilir veya URL yanlis yazilmis olabilir.</p>
+            <a class="home-link" href="/">Ana sayfaya don</a>
+        </div>
+    </div>
+</body>
+</html>

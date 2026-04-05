@@ -1,25 +1,15 @@
 from collections import defaultdict
 import unicodedata
 
-from django.db.models import F, Prefetch, Q
+from django.db.models import Prefetch, Q
 from django.http import JsonResponse
-from django.shortcuts import get_object_or_404, redirect, render
-from django.utils import timezone
+from django.shortcuts import get_object_or_404, render
 
-from .models import AdSlot, AdSlotDailyStat, ExampleSentence, Headword, Language, Sense, TrEnLink
+from .models import ExampleSentence, Headword, Language, Sense, TrEnLink
 
 
 def home(request):
-    ads = _ad_slots_map(
-        [
-            AdSlot.SlotKey.HOME_TOP,
-            AdSlot.SlotKey.HOME_TOP_MOBILE,
-            AdSlot.SlotKey.HOME_BOTTOM,
-            AdSlot.SlotKey.HOME_BOTTOM_MOBILE,
-        ]
-    )
-    _increase_ad_impressions(ads)
-    return render(request, 'dictionary/home.html', {'ads': ads})
+    return render(request, 'dictionary/home.html')
 
 
 def _normalize_text(value):
@@ -96,44 +86,6 @@ def _best_headword_match(language, query):
     return candidates[0]
 
 
-def _ad_slots_map(keys):
-    slots = {
-        slot.key: slot
-        for slot in AdSlot.objects.filter(key__in=keys, is_active=True)
-    }
-    return slots
-
-
-def _increase_ad_impressions(ads_map):
-    keys = list(ads_map.keys())
-    if not keys:
-        return
-    AdSlot.objects.filter(key__in=keys, is_active=True).update(impression_count=F('impression_count') + 1)
-    _increase_daily_stats(ads_map, event='impression')
-
-
-def _increase_daily_stats(ads_map, event='impression'):
-    day = timezone.localdate()
-    for slot in ads_map.values():
-        stat, _created = AdSlotDailyStat.objects.get_or_create(
-            ad_slot=slot,
-            day=day,
-            defaults={'impression_count': 0, 'click_count': 0},
-        )
-        if event == 'click':
-            AdSlotDailyStat.objects.filter(pk=stat.pk).update(click_count=F('click_count') + 1)
-        else:
-            AdSlotDailyStat.objects.filter(pk=stat.pk).update(impression_count=F('impression_count') + 1)
-
-
-def ad_click(request, key):
-    slot = get_object_or_404(AdSlot, key=key, is_active=True)
-    AdSlot.objects.filter(pk=slot.pk).update(click_count=F('click_count') + 1)
-    _increase_daily_stats({slot.key: slot}, event='click')
-    if slot.target_url:
-        return redirect(slot.target_url)
-    return redirect('/')
-
 
 def autocomplete(request):
     direction = request.GET.get('direction', 'en-tr')
@@ -169,15 +121,12 @@ def en_tr_detail(request, slug):
     for sense in senses:
         grouped[sense.get_part_of_speech_display()].append(sense)
 
-    ads = _ad_slots_map([AdSlot.SlotKey.EN_TR_INLINE, AdSlot.SlotKey.EN_TR_INLINE_MOBILE])
-    _increase_ad_impressions(ads)
     return render(
         request,
         'dictionary/en_tr_detail.html',
         {
             'headword': headword,
             'grouped_senses': dict(grouped),
-            'ads': ads,
         },
     )
 
@@ -192,15 +141,12 @@ def tr_en_detail(request, slug):
         .filter(tr_headword=tr_headword, en_headword__is_active=True)
         .order_by('rank', 'en_headword__lemma')
     )
-    ads = _ad_slots_map([AdSlot.SlotKey.TR_EN_BOTTOM, AdSlot.SlotKey.TR_EN_BOTTOM_MOBILE])
-    _increase_ad_impressions(ads)
     return render(
         request,
         'dictionary/tr_en_detail.html',
         {
             'headword': tr_headword,
             'links': links,
-            'ads': ads,
         },
     )
 

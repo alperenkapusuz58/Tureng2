@@ -11,12 +11,7 @@
         .list a:hover { background: #f8f8f8; }
         .helper { color: #666; }
         .listen { margin-left: 8px; padding: 4px 8px; font-size: 12px; cursor: pointer; }
-        .ad-slot { margin-top: 24px; border: 1px dashed #999; padding: 20px; color: #777; text-align: center; }
-        .ad-cta { margin-top: 10px; display: inline-block; font-size: 13px; }
-        .mobile-only { display: none; }
         @media (max-width: 768px) {
-            .desktop-only { display: none; }
-            .mobile-only { display: block; }
         }
     </style>
 </head>
@@ -36,30 +31,6 @@
         {% endfor %}
     </div>
 
-    {% with ad=ads.tr_en_bottom %}
-        <div class="ad-slot desktop-only">
-            {% if ad and ad.ad_code %}
-                {{ ad.ad_code|safe }}
-            {% else %}
-                {{ ad.placeholder_text|default:"Reklam alani (Detail Bottom Banner)" }}
-            {% endif %}
-            {% if ad and ad.target_url %}
-                <div><a class="ad-cta" href="/ad/click/{{ ad.key }}/" target="_blank" rel="noopener">Reklama git</a></div>
-            {% endif %}
-        </div>
-    {% endwith %}
-    {% with ad=ads.tr_en_bottom_mobile %}
-        <div class="ad-slot mobile-only">
-            {% if ad and ad.ad_code %}
-                {{ ad.ad_code|safe }}
-            {% else %}
-                {{ ad.placeholder_text|default:"Reklam alani (Detail Bottom Banner - Mobile)" }}
-            {% endif %}
-            {% if ad and ad.target_url %}
-                <div><a class="ad-cta" href="/ad/click/{{ ad.key }}/" target="_blank" rel="noopener">Reklama git</a></div>
-            {% endif %}
-        </div>
-    {% endwith %}
     <script>
         function speakText(text, lang) {
             if (!('speechSynthesis' in window)) {

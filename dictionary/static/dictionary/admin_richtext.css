@@ -1,0 +1,16 @@
+textarea[data-richtext="true"] {
+    min-height: 140px;
+}
+
+.tox .tox-editor-header {
+    border-bottom: 1px solid #d5deea;
+}
+
+.tox.tox-tinymce {
+    border-radius: 8px;
+    border-color: #c4d3e4;
+}
+
+html[data-theme="dark"] .tox.tox-tinymce {
+    border-color: #374151;
+}

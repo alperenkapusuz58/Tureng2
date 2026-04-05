@@ -14,12 +14,7 @@
         .suggestions li a { display: block; padding: 10px; text-decoration: none; color: #111; }
         .suggestions li a:hover { background: #f5f5f5; }
         .meta { color: #555; margin-top: 16px; font-size: 14px; }
-        .ad-slot { margin-top: 24px; border: 1px dashed #999; padding: 20px; color: #777; text-align: center; }
-        .ad-cta { margin-top: 10px; display: inline-block; font-size: 13px; }
-        .mobile-only { display: none; }
         @media (max-width: 768px) {
-            .desktop-only { display: none; }
-            .mobile-only { display: block; }
         }
     </style>
 </head>
@@ -39,57 +34,7 @@
         </div>
     </form>
 
-    {% with ad=ads.home_top %}
-        <div class="ad-slot desktop-only">
-            {% if ad and ad.ad_code %}
-                {{ ad.ad_code|safe }}
-            {% else %}
-                {{ ad.placeholder_text|default:"Reklam alani (Homepage Top Banner)" }}
-            {% endif %}
-            {% if ad and ad.target_url %}
-                <div><a class="ad-cta" href="/ad/click/{{ ad.key }}/" target="_blank" rel="noopener">Reklama git</a></div>
-            {% endif %}
-        </div>
-    {% endwith %}
-    {% with ad=ads.home_top_mobile %}
-        <div class="ad-slot mobile-only">
-            {% if ad and ad.ad_code %}
-                {{ ad.ad_code|safe }}
-            {% else %}
-                {{ ad.placeholder_text|default:"Reklam alani (Homepage Top Banner - Mobile)" }}
-            {% endif %}
-            {% if ad and ad.target_url %}
-                <div><a class="ad-cta" href="/ad/click/{{ ad.key }}/" target="_blank" rel="noopener">Reklama git</a></div>
-            {% endif %}
-        </div>
-    {% endwith %}
-
     <p class="meta">Not: Arama madde basi kelimelerde calisir. Klavye farklari icin yakin eslesme de denenir.</p>
-
-    {% with ad=ads.home_bottom %}
-        <div class="ad-slot desktop-only">
-            {% if ad and ad.ad_code %}
-                {{ ad.ad_code|safe }}
-            {% else %}
-                {{ ad.placeholder_text|default:"Reklam alani (Homepage Bottom Banner)" }}
-            {% endif %}
-            {% if ad and ad.target_url %}
-                <div><a class="ad-cta" href="/ad/click/{{ ad.key }}/" target="_blank" rel="noopener">Reklama git</a></div>
-            {% endif %}
-        </div>
-    {% endwith %}
-    {% with ad=ads.home_bottom_mobile %}
-        <div class="ad-slot mobile-only">
-            {% if ad and ad.ad_code %}
-                {{ ad.ad_code|safe }}
-            {% else %}
-                {{ ad.placeholder_text|default:"Reklam alani (Homepage Bottom Banner - Mobile)" }}
-            {% endif %}
-            {% if ad and ad.target_url %}
-                <div><a class="ad-cta" href="/ad/click/{{ ad.key }}/" target="_blank" rel="noopener">Reklama git</a></div>
-            {% endif %}
-        </div>
-    {% endwith %}
 
     <script>
         const queryInput = document.getElementById('query');

@@ -13,12 +13,7 @@
         .sense { border: 1px solid #ddd; border-radius: 8px; padding: 12px; margin-top: 10px; }
         .translation { font-weight: 700; }
         .example { margin-top: 8px; padding: 10px; background: #f8f8f8; border-radius: 6px; }
-        .ad-slot { margin-top: 24px; border: 1px dashed #999; padding: 20px; color: #777; text-align: center; }
-        .ad-cta { margin-top: 10px; display: inline-block; font-size: 13px; }
-        .mobile-only { display: none; }
         @media (max-width: 768px) {
-            .desktop-only { display: none; }
-            .mobile-only { display: block; }
         }
     </style>
 </head>
@@ -61,30 +56,6 @@
         <p>Bu kelime icin henuz anlam eklenmedi.</p>
     {% endfor %}
 
-    {% with ad=ads.en_tr_inline %}
-        <div class="ad-slot desktop-only">
-            {% if ad and ad.ad_code %}
-                {{ ad.ad_code|safe }}
-            {% else %}
-                {{ ad.placeholder_text|default:"Reklam alani (Detail Inline Banner)" }}
-            {% endif %}
-            {% if ad and ad.target_url %}
-                <div><a class="ad-cta" href="/ad/click/{{ ad.key }}/" target="_blank" rel="noopener">Reklama git</a></div>
-            {% endif %}
-        </div>
-    {% endwith %}
-    {% with ad=ads.en_tr_inline_mobile %}
-        <div class="ad-slot mobile-only">
-            {% if ad and ad.ad_code %}
-                {{ ad.ad_code|safe }}
-            {% else %}
-                {{ ad.placeholder_text|default:"Reklam alani (Detail Inline Banner - Mobile)" }}
-            {% endif %}
-            {% if ad and ad.target_url %}
-                <div><a class="ad-cta" href="/ad/click/{{ ad.key }}/" target="_blank" rel="noopener">Reklama git</a></div>
-            {% endif %}
-        </div>
-    {% endwith %}
 
     <script>
         function speakText(text, lang) {
