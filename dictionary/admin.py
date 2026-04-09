@@ -1,23 +1,25 @@
 import csv
 import io
-from datetime import timedelta
 
 from django import forms
 from django.contrib import admin
-from django.core.exceptions import ValidationError
-from django.db.models import Sum
 from django.shortcuts import redirect, render
 from django.urls import path
-from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as tr
-from django.utils import timezone
 
-from .models import AdSlot, AdSlotDailyStat, ExampleSentence, Headword, Language, PartOfSpeech, Sense, TrEnLink
+from .models import ExampleSentence, Headword, Language, PartOfSpeech, Phrase, Sense, TrEnLink
 
 
-class SenseInline(admin.TabularInline):
+class SenseInline(admin.StackedInline):
     model = Sense
     extra = 1
+    fields = ('part_of_speech', 'grammar_code', 'definition', 'translation', 'notes', 'order_index', 'is_primary')
+
+
+class PhraseInline(admin.StackedInline):
+    model = Phrase
+    extra = 0
+    fields = ('phrase_text', 'definition', 'translation', 'example_source', 'example_target', 'order_index')
 
 
 class CsvImportForm(forms.Form):
@@ -36,7 +38,7 @@ class HeadwordAdmin(admin.ModelAdmin):
     list_filter = ('language', 'is_active')
     search_fields = ('lemma', 'pronunciation_text')
     prepopulated_fields = {'slug': ('lemma',)}
-    inlines = [SenseInline]
+    inlines = [SenseInline, PhraseInline]
 
     def get_urls(self):
         urls = super().get_urls()
@@ -246,21 +248,43 @@ class HeadwordAdmin(admin.ModelAdmin):
 
 @admin.register(Sense)
 class SenseAdmin(admin.ModelAdmin):
-    list_display = ('headword', 'part_of_speech', 'translation', 'order_index', 'is_primary')
+    list_display = ('headword', 'part_of_speech', 'grammar_code', 'translation', 'order_index', 'is_primary')
     list_filter = ('part_of_speech', 'is_primary', 'headword__language')
-    search_fields = ('headword__lemma', 'translation', 'notes')
+    search_fields = ('headword__lemma', 'translation', 'definition', 'notes')
     autocomplete_fields = ('headword',)
+
+
+class ExampleSentenceAdminForm(forms.ModelForm):
+    class Meta:
+        model = ExampleSentence
+        fields = '__all__'
+        widgets = {
+            'sentence_source': forms.Textarea(attrs={'rows': 4, 'data-richtext': 'true'}),
+            'sentence_target': forms.Textarea(attrs={'rows': 3, 'data-richtext': 'true'}),
+        }
 
 
 @admin.register(ExampleSentence)
 class ExampleSentenceAdmin(admin.ModelAdmin):
+    form = ExampleSentenceAdminForm
     list_display = ('sense', 'short_source', 'order_index')
     search_fields = ('sense__headword__lemma', 'sentence_source', 'sentence_target')
     autocomplete_fields = ('sense',)
 
+    class Media:
+        css = {'all': ('dictionary/admin_richtext.css',)}
+        js = ('dictionary/admin_richtext.js',)
+
     @staticmethod
     def short_source(obj):
         return (obj.sentence_source[:70] + '...') if len(obj.sentence_source) > 70 else obj.sentence_source
+
+
+@admin.register(Phrase)
+class PhraseAdmin(admin.ModelAdmin):
+    list_display = ('headword', 'phrase_text', 'translation', 'order_index')
+    search_fields = ('headword__lemma', 'phrase_text', 'translation')
+    autocomplete_fields = ('headword',)
 
 
 @admin.register(TrEnLink)
@@ -270,223 +294,3 @@ class TrEnLinkAdmin(admin.ModelAdmin):
     autocomplete_fields = ('tr_headword', 'en_headword')
 
 
-class PageGroupFilter(admin.SimpleListFilter):
-    title = 'Sayfa Grubu'
-    parameter_name = 'page_group'
-
-    def lookups(self, request, model_admin):
-        return (
-            ('home', 'Home'),
-            ('en_tr', 'EN-TR Detail'),
-            ('tr_en', 'TR-EN Detail'),
-        )
-
-    def queryset(self, request, queryset):
-        value = self.value()
-        if value == 'home':
-            return queryset.filter(key__startswith='home_')
-        if value == 'en_tr':
-            return queryset.filter(key__startswith='en_tr_')
-        if value == 'tr_en':
-            return queryset.filter(key__startswith='tr_en_')
-        return queryset
-
-
-class DeviceGroupFilter(admin.SimpleListFilter):
-    title = 'Cihaz Grubu'
-    parameter_name = 'device_group'
-
-    def lookups(self, request, model_admin):
-        return (
-            ('desktop', 'Desktop'),
-            ('mobile', 'Mobile'),
-        )
-
-    def queryset(self, request, queryset):
-        value = self.value()
-        if value == 'mobile':
-            return queryset.filter(key__contains='_mobile')
-        if value == 'desktop':
-            return queryset.exclude(key__contains='_mobile')
-        return queryset
-
-
-class AdSlotAdminForm(forms.ModelForm):
-    class Meta:
-        model = AdSlot
-        fields = '__all__'
-        widgets = {
-            'ad_code': forms.Textarea(attrs={'rows': 10, 'style': 'font-family: monospace;'}),
-        }
-
-    def clean_ad_code(self):
-        code = (self.cleaned_data.get('ad_code') or '').strip()
-        lowered = code.lower()
-        if 'javascript:' in lowered:
-            raise ValidationError('ad_code icinde javascript: baglantisi kullanilamaz.')
-        if '<script' in lowered and '</script>' not in lowered:
-            raise ValidationError('Script etiketi acilip kapanmiyor gibi gorunuyor.')
-        if '<iframe' in lowered and '</iframe>' not in lowered:
-            raise ValidationError('Iframe etiketi acilip kapanmiyor gibi gorunuyor.')
-        return code
-
-    def clean(self):
-        cleaned = super().clean()
-        is_active = cleaned.get('is_active')
-        ad_code = (cleaned.get('ad_code') or '').strip()
-        placeholder = (cleaned.get('placeholder_text') or '').strip()
-        if is_active and not ad_code and not placeholder:
-            raise ValidationError('Aktif bir slotta ad_code veya placeholder_text dolu olmali.')
-        return cleaned
-
-
-@admin.register(AdSlot)
-class AdSlotAdmin(admin.ModelAdmin):
-    form = AdSlotAdminForm
-    list_display = (
-        'name',
-        'key',
-        'page_label',
-        'device_label',
-        'is_active',
-        'impression_count',
-        'click_count',
-        'ctr_percent',
-        'updated_at',
-    )
-    list_filter = ('is_active', 'key', PageGroupFilter, DeviceGroupFilter)
-    search_fields = ('key', 'name')
-    readonly_fields = ('ad_preview', 'impression_count', 'click_count', 'ctr_percent')
-    fieldsets = (
-        (
-            'Temel Bilgiler',
-            {
-                'fields': ('key', 'name', 'is_active'),
-            },
-        ),
-        (
-            'Reklam Icerigi',
-            {
-                'fields': ('ad_code', 'target_url', 'placeholder_text', 'ad_preview'),
-                'description': 'ad_code bos ise sayfada placeholder_text gosterilir.',
-            },
-        ),
-        (
-            'Takip',
-            {
-                'fields': ('impression_count', 'click_count', 'ctr_percent'),
-            },
-        ),
-    )
-
-    @admin.display(description='Sayfa')
-    def page_label(self, obj):
-        key = obj.key or ''
-        if key.startswith('home_'):
-            return 'Home'
-        if key.startswith('en_tr_'):
-            return 'EN-TR Detail'
-        if key.startswith('tr_en_'):
-            return 'TR-EN Detail'
-        return 'Other'
-
-    @admin.display(description='Cihaz')
-    def device_label(self, obj):
-        return 'Mobile' if '_mobile' in (obj.key or '') else 'Desktop'
-
-    @admin.display(description='Onizleme')
-    def ad_preview(self, obj):
-        if not obj or not obj.pk:
-            return 'Kayit sonrasi onizleme gorunur.'
-        if obj.ad_code:
-            return format_html(
-                (
-                    '<iframe style="width:100%;height:180px;border:1px solid #ccc;background:#fff;" '
-                    'sandbox="allow-scripts allow-popups" srcdoc="{}"></iframe>'
-                ),
-                obj.ad_code,
-            )
-        return format_html(
-            '<div style="border:1px dashed #999;padding:12px;color:#666;">{}</div>',
-            obj.placeholder_text or 'Reklam alani',
-        )
-
-    @admin.display(description='CTR')
-    def ctr_percent(self, obj):
-        return f'{obj.ctr:.2f}%'
-
-
-@admin.register(AdSlotDailyStat)
-class AdSlotDailyStatAdmin(admin.ModelAdmin):
-    change_list_template = 'admin/dictionary/adslotdailystat/change_list.html'
-    list_display = ('day', 'ad_slot', 'impression_count', 'click_count', 'ctr_percent')
-    list_filter = ('day', 'ad_slot__key')
-    search_fields = ('ad_slot__key', 'ad_slot__name')
-    autocomplete_fields = ('ad_slot',)
-    readonly_fields = ('day', 'ad_slot', 'impression_count', 'click_count', 'ctr_percent')
-
-    def get_urls(self):
-        urls = super().get_urls()
-        custom_urls = [
-            path(
-                'summary/',
-                self.admin_site.admin_view(self.summary_view),
-                name='dictionary_adslotdailystat_summary',
-            ),
-        ]
-        return custom_urls + urls
-
-    def changelist_view(self, request, extra_context=None):
-        extra_context = extra_context or {}
-        extra_context['summary_url'] = 'summary/'
-        return super().changelist_view(request, extra_context=extra_context)
-
-    def summary_view(self, request):
-        today = timezone.localdate()
-        from_day = today - timedelta(days=6)
-        rows = (
-            AdSlotDailyStat.objects.filter(day__gte=from_day, day__lte=today)
-            .values('ad_slot__key', 'ad_slot__name')
-            .annotate(
-                total_impressions=Sum('impression_count'),
-                total_clicks=Sum('click_count'),
-            )
-            .order_by('-total_impressions', 'ad_slot__key')
-        )
-
-        summary_rows = []
-        total_impressions = 0
-        total_clicks = 0
-        for row in rows:
-            impressions = row['total_impressions'] or 0
-            clicks = row['total_clicks'] or 0
-            ctr = (clicks / impressions * 100) if impressions else 0
-            total_impressions += impressions
-            total_clicks += clicks
-            summary_rows.append(
-                {
-                    'key': row['ad_slot__key'],
-                    'name': row['ad_slot__name'],
-                    'impressions': impressions,
-                    'clicks': clicks,
-                    'ctr': ctr,
-                }
-            )
-
-        total_ctr = (total_clicks / total_impressions * 100) if total_impressions else 0
-        context = {
-            **self.admin_site.each_context(request),
-            'opts': self.model._meta,
-            'title': 'Reklam Ozeti (Son 7 Gun)',
-            'from_day': from_day,
-            'to_day': today,
-            'rows': summary_rows,
-            'total_impressions': total_impressions,
-            'total_clicks': total_clicks,
-            'total_ctr': total_ctr,
-        }
-        return render(request, 'admin/dictionary/adslotdailystat/summary.html', context)
-
-    @admin.display(description='CTR')
-    def ctr_percent(self, obj):
-        return f'{obj.ctr:.2f}%'

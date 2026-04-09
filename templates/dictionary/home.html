@@ -4,37 +4,270 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Tureng Clone - MVP</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        body { font-family: Arial, sans-serif; max-width: 960px; margin: 30px auto; padding: 0 16px; }
-        .tabs button { margin-right: 8px; padding: 10px 14px; cursor: pointer; }
-        .tabs .active { background: #222; color: #fff; border: 1px solid #222; }
-        .search-wrap { margin-top: 18px; position: relative; }
-        input { width: 100%; padding: 12px; font-size: 16px; }
-        .suggestions { list-style: none; padding: 0; margin: 4px 0 0; border: 1px solid #ddd; border-radius: 8px; }
-        .suggestions li a { display: block; padding: 10px; text-decoration: none; color: #111; }
-        .suggestions li a:hover { background: #f5f5f5; }
-        .meta { color: #555; margin-top: 16px; font-size: 14px; }
-        @media (max-width: 768px) {
+        :root {
+            --navy: #1e2f6e;
+            --navy-deep: #16245a;
+            --teal: #243b7a;
+            --teal-dark: #1d3166;
+            --pill: #b7d6e5;
+            --text: #18304d;
+            --shadow: 0 18px 45px rgba(15, 34, 79, 0.18);
+        }
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            font-family: "Manrope", Arial, sans-serif;
+            background: #eef4f8;
+            color: var(--text);
+        }
+        .page {
+            max-width: 1160px;
+            margin: 26px auto;
+            padding: 0 18px 28px;
+        }
+        .hero {
+            position: relative;
+            min-height: 270px;
+            overflow: hidden;
+            border-radius: 22px;
+            background: var(--teal);
+            box-shadow: var(--shadow);
+        }
+        .hero::before {
+            content: "";
+            position: absolute;
+            inset: auto auto -60px -60px;
+            width: 360px;
+            height: 360px;
+            border-radius: 50%;
+            background: transparent;
+        }
+        .brand-panel {
+            position: absolute;
+            inset: 0 auto 0 0;
+            width: 28%;
+            min-width: 250px;
+            padding: 42px 34px;
+            color: #fff;
+        }
+        .crest {
+            width: 54px;
+            height: 54px;
+            border-radius: 18px;
+            background: linear-gradient(135deg, rgba(255,255,255,0.28), rgba(255,255,255,0.08));
+            box-shadow: 0 10px 18px rgba(12, 28, 66, 0.18);
+            backdrop-filter: blur(2px);
+            position: relative;
+        }
+        .crest::before {
+            content: "";
+            position: absolute;
+            inset: 12px;
+            border-radius: 14px;
+            background: linear-gradient(135deg, rgba(255,255,255,0.45), rgba(255,255,255,0.12));
+        }
+        .crest::after {
+            content: "";
+            position: absolute;
+            width: 18px;
+            height: 18px;
+            right: 8px;
+            bottom: 8px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.35);
+        }
+        .brand-copy {
+            margin: 18px 0 0;
+            max-width: 210px;
+            color: rgba(255,255,255,0.82);
+            font-size: 14px;
+            line-height: 1.45;
+            font-weight: 400;
+        }
+        .search-card {
+            position: absolute;
+            top: 54px;
+            left: 31%;
+            right: 34px;
+        }
+        .search-shell {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 7px 8px 7px 14px;
+            border-radius: 999px;
+            background: rgba(255,255,255,0.98);
+            box-shadow: 0 10px 24px rgba(13, 31, 66, 0.12);
+        }
+        .search-shell input {
+            width: 100%;
+            border: 0;
+            outline: none;
+            background: transparent;
+            font-size: 16px;
+            color: #26374d;
+            font-family: inherit;
+            font-weight: 400;
+        }
+        .search-meta {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #55657a;
+            font-size: 14px;
+            white-space: nowrap;
+            font-weight: 500;
+        }
+        .search-submit {
+            width: 38px;
+            height: 38px;
+            border: 0;
+            border-radius: 50%;
+            background: #ffcc1a;
+            color: #17304a;
+            font-weight: 600;
+            cursor: pointer;
+            flex: 0 0 auto;
+            font-family: inherit;
+        }
+        .tabs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 14px;
+        }
+        .tabs button {
+            padding: 8px 16px;
+            border: 0;
+            border-radius: 999px;
+            background: rgba(205, 228, 238, 0.96);
+            color: #17304a;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: inherit;
+        }
+        .tabs .active {
+            background: #ffffff;
+            box-shadow: 0 4px 14px rgba(15, 34, 79, 0.16);
+        }
+        .search-wrap {
+            position: relative;
+        }
+        .suggestions {
+            list-style: none;
+            margin: 8px 0 0;
+            padding: 0;
+            border-radius: 16px;
+            overflow: hidden;
+            background: rgba(255,255,255,0.98);
+            box-shadow: 0 12px 28px rgba(15, 34, 79, 0.14);
+        }
+        .suggestions li + li {
+            border-top: 1px solid #e6edf3;
+        }
+        .suggestions li a {
+            display: block;
+            padding: 12px 16px;
+            text-decoration: none;
+            color: #1a3550;
+        }
+        .suggestions li a:hover {
+            background: #eef6fb;
+        }
+        .meta {
+            margin: 18px 6px 0;
+            color: #55708d;
+            font-size: 14px;
+            font-weight: 400;
+        }
+        @media (max-width: 860px) {
+            .hero {
+                min-height: 360px;
+            }
+            .brand-panel {
+                position: static;
+                width: auto;
+                min-width: 0;
+                padding: 28px 24px 14px;
+            }
+            .brand-copy {
+                max-width: none;
+            }
+            .search-card {
+                position: static;
+                padding: 0 18px 24px;
+            }
+        }
+        @media (max-width: 560px) {
+            .page {
+                margin: 14px auto;
+                padding: 0 10px 18px;
+            }
+            .hero {
+                min-height: 320px;
+                border-radius: 18px;
+            }
+            .search-shell {
+                flex-wrap: wrap;
+                border-radius: 22px;
+            }
+            .search-meta {
+                width: 100%;
+                justify-content: flex-end;
+            }
+            .search-submit {
+                position: absolute;
+                right: 14px;
+                top: 9px;
+            }
+            .tabs {
+                gap: 8px;
+            }
+            .tabs button {
+                font-size: 13px;
+                padding: 7px 12px;
+            }
         }
     </style>
 </head>
 <body>
-    <h1>Dictionary MVP</h1>
-    <p>Canli arama ile kelime secin veya Enter ile arayin.</p>
+    <div class="page">
+        <section class="hero">
+            <div class="brand-panel">
+                <div class="crest" aria-hidden="true"></div>
+                <p class="brand-copy">Ingilizce ve Turkce kelimeleri sade, hizli ve canli arama deneyimi ile kesfedin.</p>
+            </div>
 
-    <form method="get" action="/search/">
-        <input type="hidden" name="direction" id="direction" value="en-tr">
-        <div class="tabs">
-            <button type="button" class="tab-btn active" data-direction="en-tr">Ingilizce -> Turkce</button>
-            <button type="button" class="tab-btn" data-direction="tr-en">Turkce -> Ingilizce</button>
-        </div>
-        <div class="search-wrap">
-            <input type="text" id="query" name="q" autocomplete="off" placeholder="Kelime yazin..." required>
-            <ul class="suggestions" id="suggestions"></ul>
-        </div>
-    </form>
+            <div class="search-card">
+                <form method="get" action="/search/">
+                    <input type="hidden" name="direction" id="direction" value="en-tr">
+                    <div class="search-wrap">
+                        <div class="search-shell">
+                            <input type="text" id="query" name="q" autocomplete="off" placeholder="Search English" required>
+                            <div class="search-meta">
+                                <span>English</span>
+                                <span>•••</span>
+                            </div>
+                            <button class="search-submit" type="submit">Q</button>
+                        </div>
+                        <ul class="suggestions" id="suggestions"></ul>
+                    </div>
 
-    <p class="meta">Not: Arama madde basi kelimelerde calisir. Klavye farklari icin yakin eslesme de denenir.</p>
+                    <div class="tabs">
+                        <button type="button" class="tab-btn active" data-direction="en-tr">English-Turkish</button>
+                        <button type="button" class="tab-btn" data-direction="tr-en">Turkish-English</button>
+                    </div>
+                </form>
+            </div>
+        </section>
+
+        <p class="meta">Canli arama ile madde baslarini bulabilir, Enter ile dogrudan sonuc sayfasina gidebilirsiniz.</p>
+    </div>
 
     <script>
         const queryInput = document.getElementById('query');
@@ -47,6 +280,7 @@
                 tabButtons.forEach((b) => b.classList.remove('active'));
                 btn.classList.add('active');
                 directionInput.value = btn.dataset.direction;
+                queryInput.placeholder = btn.dataset.direction === 'en-tr' ? 'Search English' : 'Search Turkish';
                 suggestionsEl.innerHTML = '';
                 queryInput.focus();
             });

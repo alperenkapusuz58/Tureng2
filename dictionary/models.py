@@ -57,6 +57,15 @@ class Headword(models.Model):
 class Sense(models.Model):
     headword = models.ForeignKey(Headword, on_delete=models.CASCADE, related_name='senses')
     part_of_speech = models.CharField(max_length=10, choices=PartOfSpeech.choices, default=PartOfSpeech.OTHER)
+    grammar_code = models.CharField(
+        max_length=40,
+        blank=True,
+        help_text='Gramer kodu, ör: [C/U], [T], [I], [singular/U]',
+    )
+    definition = models.TextField(
+        blank=True,
+        help_text='Ingilizce tanim. Rich text desteklenir.',
+    )
     translation = models.CharField(max_length=250)
     notes = models.CharField(max_length=255, blank=True)
     order_index = models.PositiveIntegerField(default=1)
@@ -87,6 +96,35 @@ class ExampleSentence(models.Model):
 
     def __str__(self):
         return f'Örnek: {self.sense.headword.lemma}'
+
+
+class Phrase(models.Model):
+    headword = models.ForeignKey(Headword, on_delete=models.CASCADE, related_name='phrases')
+    phrase_text = models.CharField(
+        max_length=300,
+        help_text='Deyim/kalip metni, ör: at/from a distance',
+    )
+    definition = models.TextField(
+        blank=True,
+        help_text='Ingilizce tanim. Rich text desteklenir.',
+    )
+    translation = models.CharField(
+        max_length=300,
+        blank=True,
+        help_text='Turkce karsiligi',
+    )
+    example_source = models.TextField(blank=True)
+    example_target = models.TextField(blank=True)
+    order_index = models.PositiveIntegerField(default=1)
+
+    class Meta:
+        indexes = [
+            models.Index(fields=['headword', 'order_index']),
+        ]
+        ordering = ['order_index', 'id']
+
+    def __str__(self):
+        return f'{self.headword.lemma}: {self.phrase_text}'
 
 
 class TrEnLink(models.Model):
