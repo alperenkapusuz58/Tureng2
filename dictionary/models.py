@@ -127,6 +127,19 @@ class Phrase(models.Model):
         return f'{self.headword.lemma}: {self.phrase_text}'
 
 
+class PosGroupOrder(models.Model):
+    headword = models.ForeignKey(Headword, on_delete=models.CASCADE, related_name='pos_group_orders')
+    part_of_speech = models.CharField(max_length=10, choices=PartOfSpeech.choices)
+    order_index = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        unique_together = ('headword', 'part_of_speech')
+        ordering = ['order_index', 'id']
+
+    def __str__(self):
+        return f'{self.headword.lemma} — {self.get_part_of_speech_display()} (#{self.order_index})'
+
+
 class TrEnLink(models.Model):
     tr_headword = models.ForeignKey(
         Headword,

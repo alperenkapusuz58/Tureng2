@@ -5,7 +5,7 @@ from django.db.models import Prefetch, Q
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, render
 
-from .models import ExampleSentence, Headword, Language, Phrase, Sense, TrEnLink
+from .models import ExampleSentence, Headword, Language, PosGroupOrder, Phrase, Sense, TrEnLink
 
 
 def home(request):
@@ -115,11 +115,18 @@ def en_tr_detail(request, slug):
     senses = (
         Sense.objects.filter(headword=headword)
         .prefetch_related(Prefetch('examples', queryset=ExampleSentence.objects.order_by('order_index', 'id')))
-        .order_by('part_of_speech', 'order_index', 'id')
+        .order_by('order_index', 'id')
     )
     grouped = defaultdict(list)
     for sense in senses:
         grouped[sense.part_of_speech].append(sense)
+
+    pos_order_map = dict(
+        PosGroupOrder.objects.filter(headword=headword).values_list('part_of_speech', 'order_index')
+    )
+    sorted_grouped = dict(
+        sorted(grouped.items(), key=lambda item: pos_order_map.get(item[0], 9999))
+    )
 
     phrases = Phrase.objects.filter(headword=headword).order_by('order_index', 'id')
 
@@ -128,7 +135,7 @@ def en_tr_detail(request, slug):
         'dictionary/en_tr_detail.html',
         {
             'headword': headword,
-            'grouped_senses': dict(grouped),
+            'grouped_senses': sorted_grouped,
             'phrases': phrases,
         },
     )

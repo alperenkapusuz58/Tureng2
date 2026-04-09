@@ -3,23 +3,56 @@ import io
 
 from django import forms
 from django.contrib import admin
+from django.db import models as db_models
 from django.shortcuts import redirect, render
 from django.urls import path
 from django.utils.translation import gettext_lazy as tr
 
-from .models import ExampleSentence, Headword, Language, PartOfSpeech, Phrase, Sense, TrEnLink
+from .models import ExampleSentence, Headword, Language, PartOfSpeech, PosGroupOrder, Phrase, Sense, TrEnLink
 
 
-class SenseInline(admin.StackedInline):
+class SortableInlineMixin:
+    class Media:
+        css = {"all": ("dictionary/admin_sortable.css",)}
+        js = ("dictionary/admin_sortable.js",)
+
+
+class SenseInline(SortableInlineMixin, admin.StackedInline):
     model = Sense
     extra = 1
-    fields = ('part_of_speech', 'grammar_code', 'definition', 'translation', 'notes', 'order_index', 'is_primary')
+    ordering = ("order_index", "id")
+    fields = (
+        "part_of_speech",
+        "grammar_code",
+        "definition",
+        "translation",
+        "notes",
+        "order_index",
+        "is_primary",
+    )
 
 
-class PhraseInline(admin.StackedInline):
+class PosGroupOrderInline(SortableInlineMixin, admin.TabularInline):
+    model = PosGroupOrder
+    extra = 0
+    ordering = ("order_index", "id")
+    fields = ("part_of_speech", "order_index")
+    verbose_name = "Grup sırası"
+    verbose_name_plural = "POS Grup Sıralaması"
+
+
+class PhraseInline(SortableInlineMixin, admin.StackedInline):
     model = Phrase
     extra = 0
-    fields = ('phrase_text', 'definition', 'translation', 'example_source', 'example_target', 'order_index')
+    ordering = ("order_index", "id")
+    fields = (
+        "phrase_text",
+        "definition",
+        "translation",
+        "example_source",
+        "example_target",
+        "order_index",
+    )
 
 
 class CsvImportForm(forms.Form):
@@ -38,7 +71,28 @@ class HeadwordAdmin(admin.ModelAdmin):
     list_filter = ('language', 'is_active')
     search_fields = ('lemma', 'pronunciation_text')
     prepopulated_fields = {'slug': ('lemma',)}
-    inlines = [SenseInline, PhraseInline]
+    inlines = [PosGroupOrderInline, SenseInline, PhraseInline]
+
+    def save_related(self, request, form, formsets, change):
+        super().save_related(request, form, formsets, change)
+        headword = form.instance
+        used_pos = set(
+            headword.senses.values_list("part_of_speech", flat=True).distinct()
+        )
+        existing_pos = set(
+            headword.pos_group_orders.values_list("part_of_speech", flat=True)
+        )
+        max_order = (
+            headword.pos_group_orders.aggregate(m=db_models.Max("order_index"))["m"] or 0
+        )
+        for pos in sorted(used_pos - existing_pos):
+            max_order += 10
+            PosGroupOrder.objects.create(
+                headword=headword, part_of_speech=pos, order_index=max_order,
+            )
+        stale = existing_pos - used_pos
+        if stale:
+            headword.pos_group_orders.filter(part_of_speech__in=stale).delete()
 
     def get_urls(self):
         urls = super().get_urls()

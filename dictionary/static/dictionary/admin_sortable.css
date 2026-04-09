@@ -1,0 +1,127 @@
+.sortable-group .inline-related {
+    transition: box-shadow 0.15s, opacity 0.15s, border-color 0.15s;
+    border-left: 3px solid transparent;
+    cursor: grab;
+}
+.sortable-group .inline-related:active {
+    cursor: grabbing;
+}
+
+/* Drag states */
+.sortable-dragging {
+    opacity: 0.4 !important;
+    box-shadow: none !important;
+}
+.sortable-dragover {
+    border-left-color: #417690 !important;
+    box-shadow: inset 0 0 0 1px #417690, 0 2px 12px rgba(65, 118, 144, 0.18) !important;
+}
+
+/* Controls bar */
+.sortable-controls {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    margin-right: 8px;
+    vertical-align: middle;
+}
+
+/* Drag handle */
+.sortable-handle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    font-size: 16px;
+    color: #999;
+    cursor: grab;
+    user-select: none;
+    border-radius: 4px;
+    transition: background 0.12s, color 0.12s;
+}
+.sortable-handle:hover {
+    background: rgba(65, 118, 144, 0.12);
+    color: #417690;
+}
+
+/* Position badge */
+.sortable-pos-num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 28px;
+    height: 20px;
+    padding: 0 5px;
+    border-radius: 10px;
+    background: #417690;
+    color: #fff;
+    font-size: 11px;
+    font-weight: 700;
+    line-height: 1;
+}
+
+/* Up/Down buttons */
+.sortable-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    padding: 0;
+    border: 1px solid #ccd5dd;
+    border-radius: 4px;
+    background: #fff;
+    color: #666;
+    font-size: 10px;
+    cursor: pointer;
+    line-height: 1;
+    transition: all 0.12s;
+}
+.sortable-btn:hover {
+    background: #417690;
+    border-color: #417690;
+    color: #fff;
+}
+
+/* Summary bar next to h3 */
+.sortable-summary {
+    display: inline-block;
+    margin-left: 10px;
+    font-size: 12px;
+    font-weight: 400;
+    color: #666;
+    max-width: 500px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    vertical-align: middle;
+}
+
+/* Make collapsed rows look nicer */
+.sortable-group .inline-related.collapsed {
+    border-left-color: #e8e8e8;
+}
+.sortable-group .inline-related.collapsed:hover {
+    border-left-color: #417690;
+}
+
+/* Hide order_index label from fieldsets */
+.sortable-group .form-row.field-order_index {
+    display: none !important;
+}
+
+/* ── Tabular inline rows ── */
+.sortable-group .tabular tbody tr.form-row {
+    transition: box-shadow 0.15s, opacity 0.15s;
+    cursor: grab;
+}
+.sortable-group .tabular tbody tr.form-row:active {
+    cursor: grabbing;
+}
+.sortable-group .tabular tbody tr.sortable-dragging {
+    opacity: 0.35 !important;
+}
+.sortable-group .tabular tbody tr.sortable-dragover {
+    box-shadow: inset 0 -3px 0 0 #417690 !important;
+}
