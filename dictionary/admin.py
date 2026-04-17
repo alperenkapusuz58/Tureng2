@@ -8,7 +8,7 @@ from django.shortcuts import redirect, render
 from django.urls import path
 from django.utils.translation import gettext_lazy as tr
 
-from .models import ExampleSentence, Headword, Language, PartOfSpeech, PosGroupOrder, Phrase, Sense, TrEnLink
+from .models import ExampleSentence, Headword, Language, PartOfSpeech, PosGroupOrder, Phrase, Sense, SiteSettings, TrEnLink
 
 
 class SortableInlineMixin:
@@ -26,6 +26,7 @@ class SenseInline(SortableInlineMixin, admin.StackedInline):
         "grammar_code",
         "definition",
         "translation",
+        "tr_keywords",
         "notes",
         "order_index",
         "is_primary",
@@ -36,7 +37,7 @@ class PosGroupOrderInline(SortableInlineMixin, admin.TabularInline):
     model = PosGroupOrder
     extra = 0
     ordering = ("order_index", "id")
-    fields = ("part_of_speech", "order_index")
+    fields = ("part_of_speech", "irregular_forms", "order_index")
     verbose_name = "Grup sırası"
     verbose_name_plural = "POS Grup Sıralaması"
 
@@ -142,6 +143,14 @@ class HeadwordAdmin(admin.ModelAdmin):
             'interjection': PartOfSpeech.INTERJECTION,
             'ifade': PartOfSpeech.PHRASE,
             'phrase': PartOfSpeech.PHRASE,
+            'phrasal verb': PartOfSpeech.PHRASAL_VERB,
+            'phrasal_verb': PartOfSpeech.PHRASAL_VERB,
+            'phr_verb': PartOfSpeech.PHRASAL_VERB,
+            'deyim': PartOfSpeech.IDIOM,
+            'idiom': PartOfSpeech.IDIOM,
+            'atasözü': PartOfSpeech.SAYING,
+            'atasozu': PartOfSpeech.SAYING,
+            'saying': PartOfSpeech.SAYING,
             'on ek': PartOfSpeech.OTHER,
             'ön ek': PartOfSpeech.OTHER,
             'prefix': PartOfSpeech.OTHER,
@@ -304,7 +313,7 @@ class HeadwordAdmin(admin.ModelAdmin):
 class SenseAdmin(admin.ModelAdmin):
     list_display = ('headword', 'part_of_speech', 'grammar_code', 'translation', 'order_index', 'is_primary')
     list_filter = ('part_of_speech', 'is_primary', 'headword__language')
-    search_fields = ('headword__lemma', 'translation', 'definition', 'notes')
+    search_fields = ('headword__lemma', 'translation', 'tr_keywords', 'definition', 'notes')
     autocomplete_fields = ('headword',)
 
 
@@ -346,5 +355,37 @@ class TrEnLinkAdmin(admin.ModelAdmin):
     list_display = ('tr_headword', 'en_headword', 'rank')
     search_fields = ('tr_headword__lemma', 'en_headword__lemma')
     autocomplete_fields = ('tr_headword', 'en_headword')
+
+
+@admin.register(SiteSettings)
+class SiteSettingsAdmin(admin.ModelAdmin):
+    """Singleton admin: always edits the one SiteSettings row."""
+
+    fieldsets = (
+        ('Genel', {
+            'fields': ('site_name', 'brand_tagline', 'logo_url'),
+        }),
+        ('Duyuru bandı (üst şerit)', {
+            'fields': ('announcement_is_active', 'announcement_text', 'announcement_link_url'),
+            'description': 'Tüm sayfaların üst kısmında, navy bandın hemen üstünde ince sarı şerit olarak görünür.',
+        }),
+        ('Alt bilgi', {
+            'fields': ('footer_meta_text',),
+        }),
+    )
+    readonly_fields = ()
+    list_display = ('site_name', 'announcement_is_active', 'updated_at')
+
+    def has_add_permission(self, request):
+        return not SiteSettings.objects.exists()
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+    def changelist_view(self, request, extra_context=None):
+        obj = SiteSettings.load()
+        from django.urls import reverse
+        from django.shortcuts import redirect
+        return redirect(reverse('admin:dictionary_sitesettings_change', args=[obj.pk]))
 
 

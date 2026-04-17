@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Tureng Clone - MVP</title>
+    <title>{{ site.site_name|default:"Tureng Sözlük" }}</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -26,16 +26,22 @@
         }
         .page {
             max-width: 1160px;
-            margin: 26px auto;
+            margin: 0 auto;
             padding: 0 18px 28px;
         }
         .hero {
             position: relative;
             min-height: 270px;
-            overflow: hidden;
-            border-radius: 22px;
             background: var(--teal);
             box-shadow: var(--shadow);
+            width: 100%;
+        }
+        .hero-inner {
+            position: relative;
+            max-width: 1160px;
+            margin: 0 auto;
+            padding: 0 18px;
+            min-height: 270px;
         }
         .hero::before {
             content: "";
@@ -58,27 +64,18 @@
             width: 54px;
             height: 54px;
             border-radius: 18px;
-            background: linear-gradient(135deg, rgba(255,255,255,0.28), rgba(255,255,255,0.08));
+            overflow: hidden;
             box-shadow: 0 10px 18px rgba(12, 28, 66, 0.18);
-            backdrop-filter: blur(2px);
-            position: relative;
+            background: rgba(255,255,255,0.12);
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
-        .crest::before {
-            content: "";
-            position: absolute;
-            inset: 12px;
-            border-radius: 14px;
-            background: linear-gradient(135deg, rgba(255,255,255,0.45), rgba(255,255,255,0.12));
-        }
-        .crest::after {
-            content: "";
-            position: absolute;
-            width: 18px;
-            height: 18px;
-            right: 8px;
-            bottom: 8px;
-            border-radius: 50%;
-            background: rgba(255,255,255,0.35);
+        .crest img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            display: block;
         }
         .brand-copy {
             margin: 18px 0 0;
@@ -113,15 +110,6 @@
             font-family: inherit;
             font-weight: 400;
         }
-        .search-meta {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            color: #55657a;
-            font-size: 14px;
-            white-space: nowrap;
-            font-weight: 500;
-        }
         .search-submit {
             width: 38px;
             height: 38px;
@@ -129,10 +117,11 @@
             border-radius: 50%;
             background: #ffcc1a;
             color: #17304a;
-            font-weight: 600;
             cursor: pointer;
             flex: 0 0 auto;
-            font-family: inherit;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         .tabs {
             display: flex;
@@ -166,6 +155,8 @@
             overflow: hidden;
             background: rgba(255,255,255,0.98);
             box-shadow: 0 12px 28px rgba(15, 34, 79, 0.14);
+            position: relative;
+            z-index: 100;
         }
         .suggestions li + li {
             border-top: 1px solid #e6edf3;
@@ -189,6 +180,9 @@
             .hero {
                 min-height: 360px;
             }
+            .hero-inner {
+                min-height: 360px;
+            }
             .brand-panel {
                 position: static;
                 width: auto;
@@ -210,15 +204,13 @@
             }
             .hero {
                 min-height: 320px;
-                border-radius: 18px;
+            }
+            .hero-inner {
+                min-height: 320px;
             }
             .search-shell {
                 flex-wrap: wrap;
                 border-radius: 22px;
-            }
-            .search-meta {
-                width: 100%;
-                justify-content: flex-end;
             }
             .search-submit {
                 position: absolute;
@@ -236,11 +228,21 @@
     </style>
 </head>
 <body>
-    <div class="page">
-        <section class="hero">
+    {% include "dictionary/_announcement.html" %}
+    <section class="hero">
+        <div class="hero-inner">
             <div class="brand-panel">
-                <div class="crest" aria-hidden="true"></div>
-                <p class="brand-copy">Ingilizce ve Turkce kelimeleri sade, hizli ve canli arama deneyimi ile kesfedin.</p>
+                <div class="crest">
+                    {% load static %}
+                    {% if site.logo_url %}
+                        <img src="{{ site.logo_url }}" alt="{{ site.site_name }}" onerror="this.style.display='none'">
+                    {% else %}
+                        <img src="{% static 'dictionary/logo.png' %}" alt="{{ site.site_name|default:'Logo' }}" onerror="this.style.display='none'">
+                    {% endif %}
+                </div>
+                {% if site.brand_tagline %}
+                    <p class="brand-copy">{{ site.brand_tagline }}</p>
+                {% endif %}
             </div>
 
             <div class="search-card">
@@ -249,11 +251,11 @@
                     <div class="search-wrap">
                         <div class="search-shell">
                             <input type="text" id="query" name="q" autocomplete="off" placeholder="Search English" required>
-                            <div class="search-meta">
-                                <span>English</span>
-                                <span>•••</span>
-                            </div>
-                            <button class="search-submit" type="submit">Q</button>
+                            <button class="search-submit" type="submit" aria-label="Ara">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                    <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                                </svg>
+                            </button>
                         </div>
                         <ul class="suggestions" id="suggestions"></ul>
                     </div>
@@ -264,9 +266,13 @@
                     </div>
                 </form>
             </div>
-        </section>
+        </div>
+    </section>
 
-        <p class="meta">Canli arama ile madde baslarini bulabilir, Enter ile dogrudan sonuc sayfasina gidebilirsiniz.</p>
+    <div class="page">
+        {% if site.footer_meta_text %}
+            <p class="meta">{{ site.footer_meta_text }}</p>
+        {% endif %}
     </div>
 
     <script>

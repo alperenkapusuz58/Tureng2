@@ -16,6 +16,9 @@ class PartOfSpeech(models.TextChoices):
     PREPOSITION = 'prep', 'Edat'
     CONJUNCTION = 'conj', 'Bağlaç'
     INTERJECTION = 'interj', 'Ünlem'
+    PHRASAL_VERB = 'phr_verb', 'Phrasal Verb'
+    IDIOM = 'idiom', 'Deyim'
+    SAYING = 'saying', 'Atasözü'
     PHRASE = 'phrase', 'İfade'
     OTHER = 'other', 'Diğer'
 
@@ -67,6 +70,10 @@ class Sense(models.Model):
         help_text='Ingilizce tanim. Rich text desteklenir.',
     )
     translation = models.CharField(max_length=250)
+    tr_keywords = models.TextField(
+        blank=True,
+        help_text='Virgülle ayrılmış Türkçe arama terimleri, ör: terk etmek, bırakıp gitmek',
+    )
     notes = models.CharField(max_length=255, blank=True)
     order_index = models.PositiveIntegerField(default=1)
     is_primary = models.BooleanField(default=False)
@@ -131,6 +138,11 @@ class PosGroupOrder(models.Model):
     headword = models.ForeignKey(Headword, on_delete=models.CASCADE, related_name='pos_group_orders')
     part_of_speech = models.CharField(max_length=10, choices=PartOfSpeech.choices)
     order_index = models.PositiveIntegerField(default=0)
+    irregular_forms = models.CharField(
+        max_length=200,
+        blank=True,
+        help_text='Düzensiz haller, ör: fly-flew-flown veya plural: flies',
+    )
 
     class Meta:
         unique_together = ('headword', 'part_of_speech')
@@ -204,6 +216,67 @@ class AdSlot(models.Model):
         if not self.impression_count:
             return 0.0
         return (self.click_count / self.impression_count) * 100
+
+
+class SiteSettings(models.Model):
+    """Singleton model controlling site-wide header / hero / footer content.
+
+    Only one row should exist; see SiteSettingsAdmin for enforcement.
+    """
+
+    site_name = models.CharField(
+        max_length=100,
+        default='Tureng Sözlük',
+        help_text='Tarayıcı başlığında ve üst bantta görünen site adı.',
+    )
+    brand_tagline = models.CharField(
+        max_length=250,
+        blank=True,
+        default='İngilizce-Türkçe sözlük ve çeviri asistanı.',
+        help_text='Ana sayfa hero alanında logonun altında görünen kısa açıklama.',
+    )
+    logo_url = models.CharField(
+        max_length=300,
+        blank=True,
+        help_text='Üst bant logosu için URL (opsiyonel). Boşsa statik logo kullanılır.',
+    )
+    announcement_text = models.CharField(
+        max_length=300,
+        blank=True,
+        help_text='Üst bantta (sarı şerit) gösterilecek duyuru metni. Boşsa bant gizlenir.',
+    )
+    announcement_link_url = models.URLField(
+        blank=True,
+        help_text='Duyuruya tıklanınca gidilecek URL (opsiyonel).',
+    )
+    announcement_is_active = models.BooleanField(
+        default=False,
+        help_text='Duyuru bandı açık mı?',
+    )
+    footer_meta_text = models.CharField(
+        max_length=400,
+        blank=True,
+        default='',
+        help_text='Ana sayfa altında görünen kısa bilgi/meta metni (opsiyonel).',
+    )
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = 'Site ayarı'
+        verbose_name_plural = 'Site ayarları'
+
+    def __str__(self):
+        return self.site_name or 'Site ayarları'
+
+    @classmethod
+    def load(cls):
+        """Return the singleton instance, creating it with defaults if missing."""
+        obj, _ = cls.objects.get_or_create(pk=1)
+        return obj
+
+    def save(self, *args, **kwargs):
+        self.pk = 1
+        super().save(*args, **kwargs)
 
 
 class AdSlotDailyStat(models.Model):

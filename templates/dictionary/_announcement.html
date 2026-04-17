@@ -1,0 +1,26 @@
+{% if site.announcement_is_active and site.announcement_text %}
+<div class="announcement-bar">
+    <div class="announcement-inner">
+        {% if site.announcement_link_url %}
+            <a href="{{ site.announcement_link_url }}">{{ site.announcement_text }}</a>
+        {% else %}
+            <span>{{ site.announcement_text }}</span>
+        {% endif %}
+    </div>
+</div>
+<style>
+.announcement-bar {
+    background: #ffcc1a;
+    color: #17304a;
+    font-family: "Manrope", Arial, sans-serif;
+    font-weight: 600;
+    font-size: 12.5px;
+    padding: 7px 12px;
+    text-align: center;
+    border-bottom: 1px solid #e6b800;
+}
+.announcement-inner { max-width: 1160px; margin: 0 auto; }
+.announcement-bar a { color: #17304a; text-decoration: underline; }
+.announcement-bar a:hover { opacity: 0.75; }
+</style>
+{% endif %}

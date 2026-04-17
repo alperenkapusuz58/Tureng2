@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{{ headword.lemma }} - EN -> TR</title>
+    <title>{{ headword.lemma }} - EN → TR | {{ site.site_name|default:"Tureng Sözlük" }}</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -14,80 +14,59 @@
             --bg: #eef4f8;
             --text: #1c2d44;
             --muted: #60748b;
-            --soft: #d8e4ef;
             --card: #ffffff;
             --yellow: #ffcc1a;
-            --shadow: 0 18px 45px rgba(15, 34, 79, 0.12);
-            --shadow-soft: 0 10px 24px rgba(15, 34, 79, 0.08);
+            --border: #dde5ed;
         }
-        * { box-sizing: border-box; }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
-            margin: 0;
             font-family: "Manrope", Arial, sans-serif;
             background: var(--bg);
             color: var(--text);
             font-size: 13px;
-            line-height: 1.45;
+            line-height: 1.5;
         }
-        .page {
-            max-width: 980px;
-            margin: 14px auto;
-            padding: 0 14px 18px;
-        }
-        .hero {
-            padding: 14px 16px 16px;
-            border-radius: 14px;
+
+        /* ── top bar ── */
+        .topbar {
             background: var(--navy);
-            color: #fff;
+            padding: 10px 0;
         }
-        .hero-top {
+        .topbar-inner {
+            max-width: 100%;
+            margin: 0 auto;
+            padding: 0 24px;
             display: flex;
-            justify-content: space-between;
+            align-items: center;
             gap: 16px;
-            align-items: flex-start;
         }
         .back-link {
             display: inline-flex;
             align-items: center;
-            gap: 8px;
-            padding: 6px 11px;
+            gap: 6px;
+            padding: 4px 10px;
             border-radius: 999px;
             background: rgba(255,255,255,0.14);
             color: #fff;
             text-decoration: none;
             font-size: 11px;
             font-weight: 600;
+            white-space: nowrap;
         }
-        .hero-heading {
-            margin-top: 12px;
-        }
-        .entry-header {
-            margin: 0;
-            font-size: 24px;
-            line-height: 1.1;
-            font-weight: 700;
+        .entry-title {
             color: #fff;
+            font-size: 20px;
+            font-weight: 700;
+            line-height: 1.1;
         }
-        .pron {
-            color: rgba(255,255,255,0.82);
+        .entry-pron {
+            color: rgba(255,255,255,0.72);
+            font-size: 13px;
             font-weight: 400;
-            font-size: 15px;
-        }
-        .hero-subtitle {
-            margin: 6px 0 0;
-            color: rgba(255,255,255,0.8);
-            font-size: 12px;
-            max-width: 760px;
-        }
-        .pronunciation-row {
-            display: flex;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 8px;
-            margin: 10px 0 0;
+            margin-left: 6px;
         }
         .listen-btn {
-            padding: 5px 10px;
+            padding: 4px 10px;
             font-size: 11px;
             cursor: pointer;
             border: 0;
@@ -96,132 +75,166 @@
             color: #17304a;
             font-family: inherit;
             font-weight: 700;
-            vertical-align: middle;
+            white-space: nowrap;
         }
-        .audio-wrap audio {
-            height: 30px;
-            max-width: 220px;
-            border-radius: 999px;
+
+        /* ── page ── */
+        .page {
+            max-width: 860px;
+            margin: 0 auto;
+            padding: 14px 16px 28px;
         }
-        .content {
-            margin-top: 10px;
-            padding: 0;
-        }
+
+        /* ── pos group ── */
         .pos-group {
-            margin: 0 0 10px;
-            padding: 10px 0 6px;
+            margin-bottom: 14px;
+            background: var(--card);
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            overflow: hidden;
         }
-        .pos-group:last-child {
-            margin-bottom: 0;
-        }
+        .pos-group:last-child { margin-bottom: 0; }
+
         .pos-group-header {
-            font-weight: 700;
-            font-size: 18px;
-            color: var(--navy-deep);
-            margin: 0 0 6px;
+            display: flex;
+            align-items: baseline;
+            gap: 8px;
+            padding: 9px 14px 8px;
+            border-bottom: 1px solid var(--border);
+            background: #f5f8fb;
         }
-        .pos-group-header .pron {
-            color: #58708d;
+        .pos-lemma {
+            font-weight: 700;
+            font-size: 15px;
+            color: var(--navy-deep);
+        }
+        .pos-pron {
+            color: var(--muted);
             font-size: 12px;
+            font-weight: 400;
         }
         .pos-tag {
-            display: inline-flex;
-            align-items: center;
-            margin-left: 6px;
-            padding: 2px 8px;
+            padding: 1px 7px;
             border-radius: 999px;
-            background: rgba(216, 228, 239, 0.8);
+            background: #dce8f0;
             color: var(--navy-deep);
-            font-style: normal;
-            font-weight: 600;
+            font-weight: 700;
             font-size: 10px;
             text-transform: uppercase;
             letter-spacing: 0.3px;
         }
+        .irregular-forms {
+            color: var(--muted);
+            font-size: 12px;
+            font-weight: 500;
+            padding: 3px 14px 6px;
+            background: #f5f8fb;
+            border-bottom: 1px solid var(--border);
+        }
+
+        /* ── sense list ── */
         .sense-list {
-            margin: 0;
-            padding: 0 0 0 20px;
             list-style: none;
             counter-reset: sense-counter;
         }
         .sense-item {
-            margin: 0 0 8px;
             counter-increment: sense-counter;
-            position: relative;
-            padding: 0;
+            display: flex;
+            gap: 10px;
+            padding: 8px 14px;
+            border-bottom: 1px solid var(--border);
         }
-        .sense-item:last-child { margin-bottom: 0; }
-        .sense-item::before {
-            content: counter(sense-counter);
-            position: absolute;
-            left: -20px;
-            top: 0;
+        .sense-item:last-child { border-bottom: 0; }
+        .sense-num {
+            flex: 0 0 18px;
             font-weight: 700;
-            color: var(--navy-deep);
-            font-size: 13px;
+            font-size: 12px;
+            color: var(--muted);
+            padding-top: 1px;
         }
+        .sense-body { flex: 1; min-width: 0; }
         .grammar-code {
             color: var(--muted);
             font-size: 11px;
             font-weight: 600;
+            margin-right: 4px;
         }
         .definition {
-            color: #2a405a;
-            font-size: 13px;
-            line-height: 1.45;
+            color: #3a526a;
+            font-size: 12px;
+            display: block;
+            margin-bottom: 2px;
         }
         .translation-line {
             color: var(--navy-deep);
             font-weight: 700;
-            margin: 3px 0 1px;
             font-size: 13px;
-            line-height: 1.25;
-        }
-        .sense-item:first-child .translation-line {
-            font-size: 14px;
-            font-weight: 800;
-        }
-        .notes {
-            color: var(--muted);
-            font-size: 11px;
-            margin: 0;
         }
         .example-block {
-            margin: 4px 0 0;
-            padding: 0;
-            color: #222;
+            margin-top: 4px;
             font-style: italic;
             font-size: 12px;
-            line-height: 1.5;
+            color: #4a5e72;
+            line-height: 1.4;
         }
-        .example-tr { color: #333; }
+        .example-tr { color: #555; }
+        .ex-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 22px;
+            height: 22px;
+            cursor: pointer;
+            border: 1.5px solid var(--muted);
+            border-radius: 50%;
+            background: transparent;
+            color: var(--muted);
+            vertical-align: middle;
+            margin-left: 5px;
+            padding: 0;
+            transition: border-color 0.15s, color 0.15s, opacity 0.15s;
+            opacity: 0;
+        }
+        .sense-item:hover .ex-btn {
+            opacity: 1;
+        }
+        .ex-btn:hover {
+            border-color: var(--navy);
+            color: var(--navy);
+        }
+
+        /* ── phrases ── */
         .phrases-section {
-            margin-top: 12px;
-            padding: 8px 0 0;
+            margin-top: 14px;
+            background: var(--card);
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            overflow: hidden;
         }
         .phrases-title {
             font-weight: 700;
-            font-size: 11px;
+            font-size: 10px;
             color: var(--muted);
-            margin: 0 0 6px;
-            font-family: inherit;
+            padding: 8px 14px;
+            background: #f5f8fb;
+            border-bottom: 1px solid var(--border);
             text-transform: uppercase;
             letter-spacing: 0.8px;
         }
         .phrase-item {
-            margin: 0 0 8px;
-            padding: 0;
+            padding: 8px 14px;
+            border-bottom: 1px solid var(--border);
         }
-        .phrase-item:last-child { margin-bottom: 0; }
+        .phrase-item:last-child { border-bottom: 0; }
         .phrase-text {
             font-weight: 700;
-            font-size: 14px;
+            font-size: 13px;
             color: var(--navy-deep);
         }
         .phrase-def {
-            color: #2a405a;
-            margin: 2px 0 0;
+            color: #3a526a;
             font-size: 12px;
+            margin-top: 2px;
         }
         .phrase-tr {
             color: var(--navy-deep);
@@ -230,105 +243,88 @@
             margin-top: 2px;
         }
         .phrase-example {
-            margin: 3px 0 0;
-            padding: 0;
+            margin-top: 3px;
             font-style: italic;
-            color: #333;
+            color: #4a5e72;
             font-size: 12px;
         }
+
         .empty-state {
-            padding: 12px 0;
+            padding: 20px 0;
             color: var(--muted);
-            text-align: left;
+            text-align: center;
         }
-        @media (max-width: 860px) {
-            .page {
-                margin: 10px auto;
-                padding: 0 10px 14px;
-            }
-            .hero {
-                padding: 14px;
-                border-radius: 14px;
-            }
-            .entry-header {
-                font-size: 22px;
-            }
-        }
-        @media (max-width: 560px) {
-            .hero-top {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-            .entry-header {
-                font-size: 20px;
-            }
-            .translation-line {
-                font-size: 14px;
-            }
-            .sense-item:first-child .translation-line {
-                font-size: 16px;
-            }
+
+        @media (max-width: 600px) {
+            .topbar-inner { gap: 10px; }
+            .entry-title { font-size: 17px; }
         }
     </style>
 </head>
 <body>
-    <div class="page">
-        <section class="hero">
-            <div class="hero-top">
-                <a class="back-link" href="/">← Ana sayfa</a>
-            </div>
-            <div class="hero-heading">
-                <div class="entry-header">
-                    {{ headword.lemma }}
-                    {% if headword.pronunciation_text %}
-                        <span class="pron">/{{ headword.pronunciation_text }}/</span>
-                    {% endif %}
-                </div>
-                <p class="hero-subtitle">Kelimenin anlamlarini, kullanim orneklerini ve ilgili kaliplari tek sayfada inceleyin.</p>
-            </div>
-            <div class="pronunciation-row">
-                {% if headword.pronunciation_audio_url %}
-                    <div class="audio-wrap">
-                        <audio controls preload="none" src="{{ headword.pronunciation_audio_url }}"></audio>
-                    </div>
-                {% endif %}
-                <button class="listen-btn" data-text="{{ headword.lemma }}" data-lang="en-US">▶ Seslendir</button>
-            </div>
-        </section>
 
-        <section class="content">
+    {% include "dictionary/_announcement.html" %}
+    <div class="topbar">
+        <div class="topbar-inner">
+            <a class="back-link" href="/">← Ana sayfa</a>
+            <div>
+                <span class="entry-title">{{ headword.lemma }}</span>
+                {% if headword.pronunciation_text %}
+                    <span class="entry-pron">/{{ headword.pronunciation_text }}/</span>
+                {% endif %}
+            </div>
+            {% if headword.pronunciation_audio_url %}
+                <audio id="audio" preload="none" src="{{ headword.pronunciation_audio_url }}"></audio>
+            {% endif %}
+            <button class="listen-btn" data-text="{{ headword.lemma }}" data-lang="en-US">▶ Seslendir</button>
+        </div>
+    </div>
+
+    <div class="page">
+        <section>
             {% for pos_key, sense_list in grouped_senses.items %}
                 <div class="pos-group">
                     <div class="pos-group-header">
-                        {{ headword.lemma }}
-                        {% if headword.pronunciation_text %}<span class="pron">/{{ headword.pronunciation_text }}/</span>{% endif %}
+                        <span class="pos-lemma">{{ headword.lemma }}</span>
+                        {% if headword.pronunciation_text %}
+                            <span class="pos-pron">/{{ headword.pronunciation_text }}/</span>
+                        {% endif %}
                         <span class="pos-tag">{{ pos_key }}</span>
                     </div>
-
+                    {% with pos_forms_map|dict_get:pos_key as irr_forms %}
+                        {% if irr_forms %}<div class="irregular-forms">({{ irr_forms }})</div>{% endif %}
+                    {% endwith %}
                     <ol class="sense-list">
                         {% for sense in sense_list %}
                             <li class="sense-item">
-                                {% if sense.grammar_code %}<span class="grammar-code">{{ sense.grammar_code }}</span> {% endif %}
-                                {% if sense.definition %}<span class="definition">{{ sense.definition|render_richtext }}</span>{% endif %}
-                                <div class="translation-line">{{ sense.translation }}</div>
-                                {% for ex in sense.examples.all %}
-                                    <div class="example-block">
-                                        {{ ex.sentence_source|render_richtext }}
-                                        <span class="example-tr">({{ ex.sentence_target|render_richtext }})</span>
-                                        <button class="listen-btn" data-text="{{ ex.sentence_source }}" data-lang="en-US">▶</button>
-                                    </div>
-                                {% endfor %}
+                                <span class="sense-num">{{ forloop.counter }}</span>
+                                <div class="sense-body">
+                                    {% if sense.grammar_code %}<span class="grammar-code">{{ sense.grammar_code }}</span>{% endif %}
+                                    {% if sense.definition %}<span class="definition">{{ sense.definition|render_richtext }}</span>{% endif %}
+                                    <div class="translation-line">{{ sense.translation }}</div>
+                                    {% for ex in sense.examples.all %}
+                                        <div class="example-block">
+                                            {{ ex.sentence_source|render_richtext }}
+                                            <span class="example-tr">({{ ex.sentence_target|render_richtext }})</span>
+                                            <button class="ex-btn listen-btn" data-text="{{ ex.sentence_source }}" data-lang="en-US" aria-label="Dinle">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                    <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
+                                                </svg>
+                                            </button>
+                                        </div>
+                                    {% endfor %}
+                                </div>
                             </li>
                         {% endfor %}
                     </ol>
                 </div>
             {% empty %}
-                <div class="empty-state">Bu kelime icin henuz anlam eklenmedi.</div>
+                <div class="empty-state">Bu kelime için henüz anlam eklenmedi.</div>
             {% endfor %}
 
             {% if phrases %}
                 <div class="phrases-section">
-                    <div class="phrases-title">Deyimler &amp; Kaliplar</div>
+                    <div class="phrases-title">Deyimler &amp; Kalıplar</div>
                     {% for phrase in phrases %}
                         <div class="phrase-item">
                             <span class="phrase-text">{{ phrase.phrase_text }}</span>

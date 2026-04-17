@@ -1,0 +1,212 @@
+<!doctype html>
+<html lang="tr">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{ query }} - TR → EN | {{ site.site_name|default:"Tureng Sözlük" }}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --navy: #243b7a;
+            --navy-deep: #1d3166;
+            --bg: #eef4f8;
+            --text: #1c2d44;
+            --muted: #60748b;
+            --soft: #d8e4ef;
+            --card: #ffffff;
+            --accent: #2d5dd4;
+            --row-alt: #f6f9fc;
+            --row-hover: #e8f0fa;
+            --border: #dde5ed;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: "Manrope", Arial, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        .page {
+            max-width: 960px;
+            margin: 0 auto;
+            padding: 16px 16px 32px;
+        }
+
+        /* ── header ── */
+        .hero {
+            padding: 16px 20px 18px;
+            border-radius: 14px;
+            background: var(--navy);
+            color: #fff;
+            margin-bottom: 12px;
+        }
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 5px 10px;
+            border-radius: 999px;
+            background: rgba(255,255,255,0.14);
+            color: #fff;
+            text-decoration: none;
+            font-size: 11px;
+            font-weight: 600;
+        }
+        .entry-header {
+            margin: 10px 0 0;
+            font-size: 26px;
+            font-weight: 700;
+        }
+        .direction-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 999px;
+            background: rgba(255,255,255,0.18);
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            vertical-align: middle;
+            margin-left: 8px;
+        }
+        .hero-subtitle {
+            margin: 6px 0 0;
+            color: rgba(255,255,255,0.75);
+            font-size: 12px;
+        }
+
+        /* ── table ── */
+        .dict-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: var(--card);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+            margin-bottom: 14px;
+        }
+        .group-header td {
+            background: var(--navy-deep);
+            color: #fff;
+            font-weight: 700;
+            font-size: 12px;
+            padding: 8px 14px;
+            letter-spacing: 0.3px;
+            text-transform: uppercase;
+        }
+        .dict-table th {
+            background: var(--navy);
+            color: rgba(255,255,255,0.9);
+            font-weight: 600;
+            font-size: 11px;
+            text-align: left;
+            padding: 8px 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+        }
+        .dict-table th.col-num { width: 44px; text-align: center; }
+        .dict-table th.col-cat { width: 100px; }
+        .dict-table td {
+            padding: 7px 14px;
+            border-bottom: 1px solid var(--border);
+            font-size: 13px;
+            vertical-align: middle;
+        }
+        .dict-table tbody tr:nth-child(even) td {
+            background: var(--row-alt);
+        }
+        .dict-table tbody tr:hover td {
+            background: var(--row-hover);
+        }
+        .col-num {
+            text-align: center;
+            color: var(--muted);
+            font-size: 12px;
+            font-weight: 500;
+        }
+        .col-cat {
+            font-weight: 600;
+            font-size: 11px;
+            color: var(--muted);
+        }
+        .dict-table a {
+            color: var(--accent);
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .dict-table a:hover {
+            text-decoration: underline;
+        }
+        .tr-col a { color: var(--text); }
+        .tr-col a:hover { color: var(--accent); }
+        .en-col a { font-weight: 600; }
+
+        .empty-state {
+            padding: 24px 0;
+            color: var(--muted);
+            text-align: center;
+            font-size: 14px;
+        }
+
+        @media (max-width: 560px) {
+            .page { padding: 10px 10px 20px; }
+            .hero { padding: 14px; }
+            .entry-header { font-size: 20px; }
+            .dict-table th, .dict-table td { padding: 6px 8px; font-size: 12px; }
+            .dict-table th.col-num { width: 32px; }
+            .dict-table th.col-cat { width: 70px; }
+        }
+    </style>
+</head>
+<body>
+    {% include "dictionary/_announcement.html" %}
+    <div class="page">
+        <section class="hero">
+            <a class="back-link" href="/">← Ana sayfa</a>
+            <h1 class="entry-header">
+                {{ query }}
+                <span class="direction-badge">TR → EN</span>
+            </h1>
+            <p class="hero-subtitle">
+                "{{ query }}" için {{ total }} sonuç bulundu
+            </p>
+        </section>
+
+        {% if pos_groups %}
+        <table class="dict-table">
+            <thead>
+                <tr>
+                    <th class="col-num">#</th>
+                    <th class="col-cat">Kategori</th>
+                    <th>Türkçe</th>
+                    <th>İngilizce</th>
+                </tr>
+            </thead>
+            {% for pos, senses in pos_groups.items %}
+            <tbody>
+                <tr class="group-header">
+                    <td colspan="4">{{ senses.0.get_part_of_speech_display }}</td>
+                </tr>
+                {% for sense in senses %}
+                <tr>
+                    <td class="col-num">{{ forloop.counter }}</td>
+                    <td class="col-cat">{{ sense.get_part_of_speech_display }}</td>
+                    <td class="tr-col">
+                        <a href="/en-tr/{{ sense.headword.slug }}/">{{ sense.translation }}</a>
+                    </td>
+                    <td class="en-col">
+                        <a href="/en-tr/{{ sense.headword.slug }}/">{{ sense.headword.lemma }}</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+            {% endfor %}
+        </table>
+        {% else %}
+            <div class="empty-state">Sonuç bulunamadı.</div>
+        {% endif %}
+    </div>
+</body>
+</html>

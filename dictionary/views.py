@@ -1,4 +1,5 @@
 from collections import defaultdict
+import difflib
 import unicodedata
 
 from django.db.models import Prefetch, Q
@@ -86,6 +87,163 @@ def _best_headword_match(language, query):
     return candidates[0]
 
 
+def _fuzzy_headword_suggestions(language, query, limit=6):
+    """Return 'did you mean' suggestions using difflib close-match on lemmas.
+
+    Used when prefix search produces no result; catches typos like 'fley' -> 'fly'.
+    """
+    normalized_query = _normalize_text(query)
+    if not normalized_query:
+        return []
+
+    lemmas = list(
+        Headword.objects.filter(language=language, is_active=True).values_list('id', 'lemma', 'slug')
+    )
+    if not lemmas:
+        return []
+
+    normalized_map = {}
+    norm_list = []
+    for hw_id, lemma, slug in lemmas:
+        norm = _normalize_text(lemma)
+        if not norm:
+            continue
+        normalized_map.setdefault(norm, (hw_id, lemma, slug))
+        norm_list.append(norm)
+
+    matches = difflib.get_close_matches(normalized_query, norm_list, n=limit, cutoff=0.6)
+    seen = set()
+    results = []
+    for match in matches:
+        entry = normalized_map.get(match)
+        if not entry or entry[0] in seen:
+            continue
+        seen.add(entry[0])
+        _hw_id, lemma, slug = entry
+        results.append({'lemma': lemma, 'url': f'/en-tr/{slug}/'})
+    return results
+
+
+def _fuzzy_tr_suggestions(query, limit=6):
+    """Return 'did you mean' suggestions for TR query by matching against
+    unique tr_keywords/translation tokens pulled from Sense rows."""
+    normalized_query = _normalize_text(query)
+    if not normalized_query:
+        return []
+
+    rows = (
+        Sense.objects.filter(headword__language=Language.ENGLISH, headword__is_active=True)
+        .exclude(tr_keywords='', translation='')
+        .values_list('translation', 'tr_keywords', 'headword__lemma', 'headword__slug')
+    )
+
+    tokens = {}
+    for translation, tr_keywords, lemma, slug in rows:
+        raw_terms = []
+        for source in (translation or '', tr_keywords or ''):
+            for piece in source.replace(';', ',').split(','):
+                piece = piece.strip()
+                if piece:
+                    raw_terms.append(piece)
+        for term in raw_terms:
+            norm = _normalize_text(term)
+            if not norm or len(norm) < 2:
+                continue
+            tokens.setdefault(norm, {'term': term, 'lemma': lemma, 'slug': slug})
+
+    if not tokens:
+        return []
+
+    matches = difflib.get_close_matches(normalized_query, list(tokens.keys()), n=limit * 2, cutoff=0.65)
+    seen_lemma = set()
+    results = []
+    for match in matches:
+        entry = tokens[match]
+        if entry['lemma'] in seen_lemma:
+            continue
+        seen_lemma.add(entry['lemma'])
+        results.append({
+            'lemma': entry['lemma'],
+            'term': entry['term'],
+            'url': f"/en-tr/{entry['slug']}/",
+        })
+        if len(results) >= limit:
+            break
+    return results
+
+
+def _sample_headwords(language, limit=8):
+    """Return a small list of headwords to surface on empty-state pages."""
+    qs = (
+        Headword.objects.filter(language=language, is_active=True)
+        .order_by('-updated_at')[:limit]
+    )
+    return [{'lemma': hw.lemma, 'url': f'/en-tr/{hw.slug}/'} for hw in qs]
+
+
+
+def _search_tr_keywords(query, limit=80):
+    """Search Sense.tr_keywords for Turkish query, return flat sense-level rows grouped by POS."""
+    variants = _query_variants(query)
+    if not variants:
+        return []
+
+    db_q = Q()
+    for v in variants:
+        db_q |= Q(tr_keywords__icontains=v)
+
+    senses = (
+        Sense.objects
+        .filter(db_q, headword__language=Language.ENGLISH, headword__is_active=True)
+        .select_related('headword')
+        .order_by('part_of_speech', 'headword__lemma', 'order_index', 'id')[:limit]
+    )
+
+    seen = set()
+    pos_groups = defaultdict(list)
+    for sense in senses:
+        key = (sense.headword_id, sense.translation, sense.part_of_speech)
+        if key in seen:
+            continue
+        seen.add(key)
+        pos_groups[sense.part_of_speech].append(sense)
+
+    return dict(pos_groups)
+
+
+def _autocomplete_tr_keywords(query, limit=10):
+    """Return autocomplete suggestions for TR-EN by searching tr_keywords."""
+    variants = _query_variants(query)
+    if not variants:
+        return []
+
+    db_q = Q()
+    for v in variants:
+        db_q |= Q(tr_keywords__icontains=v)
+
+    senses = (
+        Sense.objects
+        .filter(db_q, headword__language=Language.ENGLISH, headword__is_active=True)
+        .select_related('headword')
+        .order_by('headword__lemma')[:limit * 3]
+    )
+
+    seen = set()
+    results = []
+    for sense in senses:
+        hw = sense.headword
+        if hw.id in seen:
+            continue
+        seen.add(hw.id)
+        results.append({
+            'lemma': hw.lemma,
+            'translation': sense.translation,
+            'url': f'/en-tr/{hw.slug}/',
+        })
+        if len(results) >= limit:
+            break
+    return results
+
 
 def autocomplete(request):
     direction = request.GET.get('direction', 'en-tr')
@@ -94,12 +252,15 @@ def autocomplete(request):
     if len(query) < 2:
         return JsonResponse({'results': []})
 
-    language = Language.ENGLISH if direction == 'en-tr' else Language.TURKISH
-    headwords = _search_headwords(language=language, query=query, limit=10)
+    if direction == 'tr-en':
+        results = _autocomplete_tr_keywords(query, limit=10)
+        return JsonResponse({'results': results})
+
+    headwords = _search_headwords(language=Language.ENGLISH, query=query, limit=10)
     results = [
         {
             'lemma': item.lemma,
-            'url': _headword_detail_url(direction, item),
+            'url': f'/en-tr/{item.slug}/',
         }
         for item in headwords
     ]
@@ -121,9 +282,10 @@ def en_tr_detail(request, slug):
     for sense in senses:
         grouped[sense.part_of_speech].append(sense)
 
-    pos_order_map = dict(
-        PosGroupOrder.objects.filter(headword=headword).values_list('part_of_speech', 'order_index')
-    )
+    pos_group_qs = PosGroupOrder.objects.filter(headword=headword)
+    pos_order_map = {pg.part_of_speech: pg.order_index for pg in pos_group_qs}
+    pos_forms_map = {pg.part_of_speech: pg.irregular_forms for pg in pos_group_qs}
+
     sorted_grouped = dict(
         sorted(grouped.items(), key=lambda item: pos_order_map.get(item[0], 9999))
     )
@@ -136,6 +298,7 @@ def en_tr_detail(request, slug):
         {
             'headword': headword,
             'grouped_senses': sorted_grouped,
+            'pos_forms_map': pos_forms_map,
             'phrases': phrases,
         },
     )
@@ -165,31 +328,64 @@ def search_redirect(request):
     direction = request.GET.get('direction', 'en-tr')
     query = request.GET.get('q', '').strip()
     if not query:
-        return render(request, 'dictionary/not_found.html', {'query': query, 'suggestions': []})
+        return render(
+            request,
+            'dictionary/not_found.html',
+            {
+                'query': query,
+                'direction': direction,
+                'suggestions': [],
+                'did_you_mean': [],
+                'sample_words': _sample_headwords(Language.ENGLISH, limit=8),
+            },
+            status=404,
+        )
 
     if direction == 'en-tr':
         headword = _best_headword_match(language=Language.ENGLISH, query=query)
         if headword:
             return en_tr_detail(request, headword.slug)
-    else:
-        headword = _best_headword_match(language=Language.TURKISH, query=query)
-        if headword:
-            return tr_en_detail(request, headword.slug)
+        suggestions = _search_headwords(language=Language.ENGLISH, query=query, limit=5)
+        suggestion_items = [
+            {'lemma': item.lemma, 'url': f'/en-tr/{item.slug}/'}
+            for item in suggestions
+        ]
+        did_you_mean = [] if suggestion_items else _fuzzy_headword_suggestions(
+            Language.ENGLISH, query, limit=6
+        )
+        return render(
+            request,
+            'dictionary/not_found.html',
+            {
+                'query': query,
+                'direction': direction,
+                'suggestions': suggestion_items,
+                'did_you_mean': did_you_mean,
+                'sample_words': _sample_headwords(Language.ENGLISH, limit=8),
+            },
+            status=404,
+        )
 
-    language = Language.ENGLISH if direction == 'en-tr' else Language.TURKISH
-    suggestions = _search_headwords(language=language, query=query, limit=5)
-    suggestion_items = [
-        {
-            'lemma': item.lemma,
-            'url': _headword_detail_url(direction, item),
-        }
-        for item in suggestions
-    ]
+    pos_groups = _search_tr_keywords(query, limit=80)
+    if pos_groups:
+        total = sum(len(rows) for rows in pos_groups.values())
+        return render(request, 'dictionary/tr_en_results.html', {
+            'query': query,
+            'pos_groups': pos_groups,
+            'total': total,
+        })
+
+    tr_suggestions = _autocomplete_tr_keywords(query, limit=5)
+    did_you_mean = [] if tr_suggestions else _fuzzy_tr_suggestions(query, limit=6)
     return render(
         request,
         'dictionary/not_found.html',
         {
             'query': query,
-            'suggestions': suggestion_items,
+            'direction': direction,
+            'suggestions': tr_suggestions,
+            'did_you_mean': did_you_mean,
+            'sample_words': _sample_headwords(Language.ENGLISH, limit=8),
         },
+        status=404,
     )

@@ -63,6 +63,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'dictionary.context_processors.site_settings',
             ],
             'builtins': ['dictionary.templatetags.dictionary_extras'],
         },

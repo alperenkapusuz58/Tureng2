@@ -44,6 +44,13 @@ class _SimpleRichTextSanitizer(HTMLParser):
         self.parts.append(f'&#{name};')
 
 
+@register.filter(name='dict_get')
+def dict_get(mapping, key):
+    if isinstance(mapping, dict):
+        return mapping.get(key, '')
+    return ''
+
+
 @register.filter(name='render_richtext')
 def render_richtext(value):
     parser = _SimpleRichTextSanitizer()
